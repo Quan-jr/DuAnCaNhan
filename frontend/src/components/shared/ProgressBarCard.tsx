@@ -7,12 +7,12 @@ interface ProgressBarCardProps {
   icon?: ReactNode;
   iconBgColor?: string;
   iconTextColor?: string;
-  targetLabel: string;
-  targetAmount: string;
-  currentLabel: string;
-  currentAmount: string;
-  remainingLabel: string;
-  remainingAmount: string;
+  targetLabel: React.ReactNode;
+  targetAmount: React.ReactNode;
+  currentLabel: React.ReactNode;
+  currentAmount: React.ReactNode;
+  remainingLabel: React.ReactNode;
+  remainingAmount: React.ReactNode;
   progressPercentage: number;
   progressBarColor?: string;
   bottomLeftText?: string;
