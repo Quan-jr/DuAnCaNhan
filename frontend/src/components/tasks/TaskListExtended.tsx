@@ -41,9 +41,8 @@ export default function TaskListExtended({ tasks, loading, fetchTasks }: TaskLis
     }
   };
 
-  const handleToggleCheck = async (e: React.MouseEvent, task: any) => {
+  const handleUpdateStatus = async (e: React.MouseEvent, task: any, newStatusId: number) => {
     e.stopPropagation();
-    const newStatusId = task.checked ? 1 : 3; // 1: 'Chưa làm', 3: 'Hoàn thành'
     try {
       const { error } = await supabase
         .from('task_list')
@@ -92,14 +91,36 @@ export default function TaskListExtended({ tasks, loading, fetchTasks }: TaskLis
                   className="flex items-center gap-4 p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors group cursor-pointer"
                   onClick={() => setSelectedTask(task)}
                 >
-                  <div className="pt-1 self-start" onClick={(e) => handleToggleCheck(e, task)}>
-                    <div className={`w-5 h-5 rounded border flex items-center justify-center cursor-pointer transition-colors ${
-                      task.checked 
-                        ? 'bg-primary border-primary text-white' 
-                        : 'border-gray-300 hover:border-primary bg-white'
-                    }`}>
-                      {task.checked && <CheckSquare size={14} className="text-white" />}
-                    </div>
+                  <div className="self-center shrink-0 w-[85px] flex justify-center">
+                    {task.status === 'Chưa làm' && (
+                      <button 
+                        onClick={(e) => handleUpdateStatus(e, task, 2)}
+                        className="text-[10px] font-bold px-2 py-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 w-full transition-colors"
+                      >
+                        Bắt đầu làm
+                      </button>
+                    )}
+                    {task.status === 'Đang làm' && (
+                      <button 
+                        onClick={(e) => handleUpdateStatus(e, task, 3)}
+                        className="text-[10px] font-bold px-2 py-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200 w-full transition-colors"
+                      >
+                        Hoàn thành
+                      </button>
+                    )}
+                    {task.status === 'Hoàn thành' && (
+                      <div 
+                        className="w-5 h-5 rounded border border-primary bg-primary flex items-center justify-center text-white cursor-pointer"
+                        onClick={(e) => handleUpdateStatus(e, task, 1)} // optional: allow unchecking back to 'Chưa làm'
+                      >
+                        <CheckSquare size={14} className="text-white" />
+                      </div>
+                    )}
+                    {['Tạm hoãn', 'Hủy bỏ', 'Quá hạn'].includes(task.status) && (
+                      <div className="w-6 h-6 rounded-full border border-gray-200 bg-gray-50 flex items-center justify-center cursor-default">
+                        <X size={14} className="text-gray-400" />
+                      </div>
+                    )}
                   </div>
                   
                   <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4">

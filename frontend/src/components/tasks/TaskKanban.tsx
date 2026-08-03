@@ -3,15 +3,54 @@ interface TaskKanbanProps {
 }
 
 export default function TaskKanban({ tasks }: TaskKanbanProps) {
-  const todo = tasks.filter(t => t.status === 'Chưa làm');
-  const inProgress = tasks.filter(t => t.status === 'Đang làm');
-  const done = tasks.filter(t => t.status === 'Hoàn thành');
+  const today = new Date();
+  
+  const getMonday = (d: Date) => {
+    const date = new Date(d);
+    const day = date.getDay();
+    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+    date.setDate(diff);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  };
+  const currentMonday = getMonday(today);
+
+  // Calculate week number
+  const getWeekNumber = (d: Date) => {
+    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const dayNum = date.getUTCDay() || 7;
+    date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+    return Math.ceil((((date.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+  };
+  const weekNumber = getWeekNumber(today);
+
+  // Format date
+  const dayStr = String(today.getDate()).padStart(2, '0');
+  const monthStr = String(today.getMonth() + 1).padStart(2, '0');
+  const yearStr = today.getFullYear();
+  const formattedDate = `${dayStr}/${monthStr}/${yearStr}`;
+
+  const currentWeekTasks = tasks.filter(t => {
+    if (!t.date) return false;
+    const [day, month, year] = t.date.split('/');
+    const taskDate = new Date(Number(year), Number(month) - 1, Number(day));
+    return taskDate >= currentMonday;
+  });
+
+  const todo = currentWeekTasks.filter(t => t.status === 'Chưa làm');
+  const inProgress = currentWeekTasks.filter(t => t.status === 'Đang làm');
+  const done = currentWeekTasks.filter(t => t.status === 'Hoàn thành');
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-md font-bold text-gray-900">Tiến độ công việc</h3>
-        <span className="text-xs text-primary font-medium cursor-pointer hover:underline">Xem chi tiết &gt;</span>
+        <h3 className="text-md font-bold text-gray-900 flex items-center gap-2 flex-wrap">
+          Tiến độ công việc
+          <span className="text-xs font-normal text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full border border-gray-200 shadow-sm">
+            {formattedDate} (Tuần {weekNumber})
+          </span>
+        </h3>
       </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

@@ -119,18 +119,45 @@ export default function TasksPage() {
       if (error) throw error;
 
       if (data) {
-        const mapped = data.map((t: any) => ({
-          id: t.id,
-          title: t.title,
-          description: t.description,
-          status: idToStatusMap[t.id__status] || 'Chưa làm',
-          priority: idToPriorityMap[t.id__priority] || 'Trung bình',
-          checked: t.id__status === 3,
-          date: formatDate(t.created_date),
-          icon: t.icon || getIconForTask(t.title),
-          color: getColorForTask(t.id__priority),
-          image_url: t.photo,
-        }));
+        const today = new Date();
+        const dayOfWeek = today.getDay();
+        // Thứ 7 (6) hoặc Chủ nhật (0) - tức là cách thứ 2 tuần sau tầm 1-2 ngày
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+        
+        const getMonday = (d: Date) => {
+          const date = new Date(d);
+          const day = date.getDay();
+          const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+          date.setDate(diff);
+          date.setHours(0, 0, 0, 0);
+          return date;
+        };
+        const currentMonday = getMonday(today);
+
+        const mapped = data.map((t: any) => {
+          let currentPriorityId = t.id__priority;
+          const currentStatus = idToStatusMap[t.id__status] || 'Chưa làm';
+          
+          if (isWeekend && currentStatus === 'Chưa làm' && t.created_date) {
+            const createdDate = new Date(t.created_date);
+            if (createdDate >= currentMonday) {
+              currentPriorityId = 4; // Khẩn cấp
+            }
+          }
+
+          return {
+            id: t.id,
+            title: t.title,
+            description: t.description,
+            status: currentStatus,
+            priority: idToPriorityMap[currentPriorityId] || 'Trung bình',
+            checked: t.id__status === 3,
+            date: formatDate(t.created_date),
+            icon: t.icon || getIconForTask(t.title),
+            color: getColorForTask(currentPriorityId),
+            image_url: t.photo,
+          };
+        });
         setTasks(mapped);
       }
     } catch (error: any) {
