@@ -11,7 +11,7 @@ export default function TaskListPage() {
       </div>
       
       <div className="flex-1 min-h-0 lg:w-3/4">
-        <TaskListExtended />
+        <TaskListExtended tasks={[]} loading={false} fetchTasks={async () => {}} />
       </div>
     </div>
   );
