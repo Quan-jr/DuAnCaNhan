@@ -40,7 +40,7 @@ export default function BudgetWidget() {
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value: number) => [`${value}%`, 'Tỷ lệ']} />
+              <Tooltip formatter={(value: any) => [`${value}%`, 'Tỷ lệ']} />
             </PieChart>
           </ResponsiveContainer>
         </div>
