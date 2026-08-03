@@ -67,8 +67,18 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* Main Content Grid 1 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+      {/* Row 1: Financial & Target Summary */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="col-span-1 lg:col-span-8">
+          <GeneralInfo />
+        </div>
+        <div className="col-span-1 lg:col-span-4">
+          <BudgetWidget />
+        </div>
+      </div>
+
+      {/* Row 2: Details & Activity Lists */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="col-span-1">
           <TaskList />
         </div>
@@ -76,17 +86,7 @@ export default function Dashboard() {
           <TransactionList />
         </div>
         <div className="col-span-1">
-          <BudgetWidget />
-        </div>
-      </div>
-
-      {/* Main Content Grid 2 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-        <div className="col-span-1">
           <IncomeList />
-        </div>
-        <div className="col-span-1">
-          <GeneralInfo />
         </div>
       </div>
     </div>

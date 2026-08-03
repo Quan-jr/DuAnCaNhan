@@ -5,14 +5,14 @@ import { mockTasks } from '@/lib/mockData';
 
 export default function TaskList() {
   return (
-    <div className="glass-card p-6 flex-1">
+    <div className="glass-card p-6 flex flex-col h-full">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg font-bold text-gray-900">Danh sách công việc</h2>
         <button className="text-sm text-primary font-medium hover:underline">Xem tất cả</button>
       </div>
       
       <div className="flex flex-col gap-3">
-        {mockTasks.map((task) => (
+        {mockTasks.slice(0, 5).map((task) => (
           <div key={task.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-colors group border border-transparent hover:border-gray-100 gap-3 sm:gap-0">
             <div className="flex items-start sm:items-center gap-3">
               <div className={`w-5 h-5 mt-0.5 sm:mt-0 shrink-0 rounded border flex items-center justify-center cursor-pointer transition-colors ${

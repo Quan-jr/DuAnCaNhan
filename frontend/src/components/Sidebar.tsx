@@ -16,8 +16,7 @@ import {
 
 const menuItems = [
   { name: 'Tổng quan', href: '/', icon: Home },
-  { name: 'Công việc', href: '/tasks', icon: CheckSquare },
-  { name: 'Task List', href: '/task-list', icon: ListTodo },
+  { name: 'Task List', href: '/tasks', icon: ListTodo },
   { name: 'Thu nhập', href: '/earnings', icon: Wallet },
   { name: 'Ví', href: '/wallets', icon: Briefcase },
   { name: 'Giao dịch', href: '/transactions', icon: ArrowRightLeft },

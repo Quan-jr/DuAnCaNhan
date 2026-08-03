@@ -6,6 +6,9 @@ export const mockTasks = [
   { id: 5, title: 'Đọc sách 30 phút', description: 'Đọc sách phát triển bản thân', status: 'Chưa làm', priority: 'Thấp', date: '26/06/2026', checked: false, icon: 'book', color: 'bg-purple-100 text-purple-600' },
   { id: 6, title: 'Chuẩn bị bài thuyết trình', description: 'Chuẩn bị slide và nội dung cho buổi thuyết trình', status: 'Đang làm', priority: 'Cao', date: '29/06/2026', checked: false, icon: 'monitor', color: 'bg-gray-100 text-gray-600' },
   { id: 7, title: 'Đặt vé máy bay về quê', description: 'Đặt vé cho chuyến về quê cuối tuần', status: 'Chưa làm', priority: 'Trung bình', date: '28/06/2026', checked: false, icon: 'plane', color: 'bg-sky-100 text-sky-600' },
+  { id: 8, title: 'Kiểm tra hệ thống backup', description: 'Sao lưu dữ liệu định kỳ và kiểm tra tính toàn vẹn', status: 'Chưa làm', priority: 'Cao', date: '01/07/2026', checked: false, icon: 'file-text', color: 'bg-red-100 text-red-600' },
+  { id: 9, title: 'Họp định kỳ với team', description: 'Cập nhật tiến độ tuần và thảo luận khó khăn', status: 'Hoàn thành', priority: 'Trung bình', date: '29/06/2026', checked: true, icon: 'activity', color: 'bg-teal-100 text-teal-600' },
+  { id: 10, title: 'Thiết kế banner sự kiện', description: 'Tạo các mẫu banner quảng bá cho chương trình mới', status: 'Đang làm', priority: 'Thấp', date: '02/07/2026', checked: false, icon: 'monitor', color: 'bg-pink-100 text-pink-600' },
 ];
 
 export const mockTransactions = [
@@ -19,6 +22,8 @@ export const mockTransactions = [
 export const mockEarnings = [
   { id: 1, title: 'Lương tháng 06/2026', date: '01/06/2026', amount: 15000000, type: 'Lương' },
   { id: 2, title: 'Thu nhập freelance', date: '15/06/2026', amount: 2000000, type: 'Freelance' },
+  { id: 3, title: 'Lợi nhuận đầu tư', date: '20/06/2026', amount: 1200000, type: 'Freelance' },
+  { id: 4, title: 'Bán đồ cũ', date: '22/06/2026', amount: 500000, type: 'Lương' },
 ];
 
 export const mockBudgetDistribution = [

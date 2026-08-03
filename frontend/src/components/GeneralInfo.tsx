@@ -5,10 +5,10 @@ import { ArrowDownRight, ArrowUpRight, Wallet } from 'lucide-react';
 
 export default function GeneralInfo() {
   return (
-    <div className="glass-card p-6 flex flex-col justify-between">
+    <div className="glass-card p-6 flex flex-col h-full">
       <h2 className="text-lg font-bold text-gray-900 mb-4">Thông tin tổng quan</h2>
       
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3 gap-4 mb-6">
         <div className="bg-success-light/30 p-4 rounded-xl flex items-center gap-3 border border-success-light">
           <div className="w-8 h-8 rounded-full bg-success-light flex items-center justify-center text-success">
             <ArrowUpRight size={16} />

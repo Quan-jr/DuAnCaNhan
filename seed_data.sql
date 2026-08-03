@@ -53,19 +53,21 @@ INSERT INTO wallets (id, budget_month, initial_balance_id, current_balance, tran
 (9, '08/2026', 9, 1500000, '2026-08-25'),
 (10, '08/2026', 10, 2500000, '2026-08-25');
 
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS description TEXT;
+
 -- 6. Thêm 10 dòng cho Transactions (Giao dịch)
 -- Liên kết với ví tháng 06/2026 (id_wallet = 1)
-INSERT INTO transactions (id, id__wallet, amount, transaction_date) VALUES 
-(1, 1, -450000, '2026-06-25'),  -- Siêu thị WinMart
-(2, 1, -650000, '2026-06-25'),  -- Tiền điện
-(3, 1, -120000, '2026-06-24'),  -- Ăn uống
-(4, 1, -200000, '2026-06-24'),  -- Xăng xe
-(5, 1, -45000, '2026-06-23'),   -- Cà phê
-(6, 1, -300000, '2026-06-20'),  -- Mua sách
-(7, 1, -150000, '2026-06-18'),  -- Đăng ký Netflix
-(8, 1, -500000, '2026-06-15'),  -- Quà sinh nhật bạn
-(9, 1, -80000, '2026-06-12'),   -- Trà sữa
-(10, 1, -1200000, '2026-06-10'); -- Mua giày mới
+INSERT INTO transactions (id, id__wallet, amount, transaction_date, description) VALUES 
+(1, 1, -450000, '2026-06-25', 'Siêu thị WinMart'),
+(2, 1, -650000, '2026-06-25', 'Tiền điện'),
+(3, 1, -120000, '2026-06-24', 'Ăn uống'),
+(4, 1, -200000, '2026-06-24', 'Xăng xe'),
+(5, 1, -45000, '2026-06-23', 'Cà phê'),
+(6, 1, -300000, '2026-06-20', 'Mua sách'),
+(7, 1, -150000, '2026-06-18', 'Đăng ký Netflix'),
+(8, 1, -500000, '2026-06-15', 'Quà sinh nhật bạn'),
+(9, 1, -80000, '2026-06-12', 'Trà sữa'),
+(10, 1, -1200000, '2026-06-10', 'Mua giày mới');
 
 -- 7. Thêm 10 dòng cho Task List (Danh sách công việc)
 -- Liên kết với status (1-5) và priority (1-4)
