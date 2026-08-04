@@ -50,7 +50,7 @@ export default function CircularNavMenu() {
       )}
 
       {/* Floating Logo Container */}
-      <div className="fixed top-5 left-5 z-50">
+      <div className="fixed top-2.5 left-5 z-50">
         {/* Central Logo Button */}
         <button
           type="button"
@@ -139,7 +139,7 @@ export default function CircularNavMenu() {
 
       {/* User profile floating badge (when menu is open) */}
       {isOpen && (
-        <div className="fixed top-5 left-56 z-50 flex items-center gap-3 bg-white/95 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-gray-100 animate-in fade-in slide-in-from-left-4 duration-300">
+        <div className="fixed top-2.5 left-56 z-50 flex items-center gap-3 bg-white/95 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-gray-100 animate-in fade-in slide-in-from-left-4 duration-300">
           <img 
             src="https://i.pravatar.cc/150?u=a042581f4e29026024d" 
             alt="User" 

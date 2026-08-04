@@ -16,17 +16,10 @@ export default function Dashboard() {
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Xin chào, Dương Minh Quân! 👋</h1>
           <p className="text-sm text-gray-500 mt-1">Đây là tổng quan tài chính và công việc của bạn.</p>
         </div>
-        <div className="flex items-center gap-2 sm:gap-4 w-full md:w-auto justify-between md:justify-end">
+        <div className="flex items-center gap-2 sm:gap-4">
           <div className="flex items-center gap-2 bg-white px-3 sm:px-4 py-2 rounded-xl shadow-sm border border-gray-100 text-xs sm:text-sm font-medium text-gray-700">
             Tháng 06/2026
             <Calendar size={16} className="text-gray-400" />
-          </div>
-          <div className="flex items-center gap-2 sm:gap-4">
-            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-100 relative cursor-pointer hover:bg-gray-50 transition-colors">
-              <Bell size={18} className="text-gray-600" />
-              <div className="absolute top-2 right-2 w-2 h-2 bg-danger rounded-full"></div>
-            </div>
-            <img src="https://i.pravatar.cc/150?u=a042581f4e29026024d" alt="Profile" className="w-10 h-10 rounded-full border-2 border-white shadow-sm cursor-pointer" />
           </div>
         </div>
       </header>

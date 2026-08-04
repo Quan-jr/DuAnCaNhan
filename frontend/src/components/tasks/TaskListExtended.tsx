@@ -80,7 +80,7 @@ export default function TaskListExtended({
 
   if (loading) {
     return (
-      <div className="flex flex-col h-full min-h-[400px] justify-center items-center">
+      <div className="flex flex-col min-h-[300px] justify-center items-center">
         <RefreshCw className="animate-spin text-primary" size={32} />
         <span className="text-sm text-gray-500 mt-2 font-medium">Đang tải danh sách công việc...</span>
       </div>
@@ -88,7 +88,7 @@ export default function TaskListExtended({
   }
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex flex-col h-full">
       <div className="py-4 border-b border-gray-200 flex items-center justify-between mb-2">
         <h2 className="text-lg font-bold text-gray-900">Danh sách công việc</h2>
         <button className="text-gray-400 hover:text-gray-600">
@@ -96,7 +96,7 @@ export default function TaskListExtended({
         </button>
       </div>
       
-      <div className="overflow-y-auto">
+      <div className="flex-1">
         <div className="flex flex-col">
           {tasks.length === 0 ? (
             <div className="p-8 text-center text-gray-500 flex flex-col items-center justify-center gap-2">
@@ -108,76 +108,79 @@ export default function TaskListExtended({
               const Icon = iconMap[task.icon || 'file-text'] || FileText;
               
               return (
-                <div 
+                <div
                   key={task.id}
-                  className="flex items-center gap-4 p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors group cursor-pointer"
+                  className="flex items-start gap-3 p-3 sm:p-4 border-b border-gray-50 hover:bg-gray-50/80 transition-colors group cursor-pointer active:bg-gray-100"
                   onClick={() => setSelectedTask(task)}
                 >
-                  <div className="self-center shrink-0 w-[85px] flex justify-center">
-                    {task.status === 'Chưa làm' && (
-                      <button 
-                        onClick={(e) => handleUpdateStatus(e, task, 2)}
-                        className="text-[10px] font-bold px-2 py-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 w-full transition-colors"
-                      >
-                        Bắt đầu làm
-                      </button>
-                    )}
-                    {task.status === 'Đang làm' && (
-                      <button 
-                        onClick={(e) => handleUpdateStatus(e, task, 3)}
-                        className="text-[10px] font-bold px-2 py-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200 w-full transition-colors"
-                      >
-                        Hoàn thành
-                      </button>
-                    )}
-                    {task.status === 'Hoàn thành' && (
-                      <div 
-                        className="w-5 h-5 rounded border border-primary bg-primary flex items-center justify-center text-white cursor-pointer"
-                        onClick={(e) => handleUpdateStatus(e, task, 1)} // optional: allow unchecking back to 'Chưa làm'
-                      >
-                        <CheckSquare size={14} className="text-white" />
-                      </div>
-                    )}
-                    {['Tạm hoãn', 'Hủy bỏ', 'Quá hạn'].includes(task.status) && (
-                      <div className="w-6 h-6 rounded-full border border-gray-200 bg-gray-50 flex items-center justify-center cursor-default">
-                        <X size={14} className="text-gray-400" />
-                      </div>
-                    )}
+                  {/* Icon */}
+                  <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${task.color || 'bg-gray-100 text-gray-500'}`}>
+                    <Icon size={18} />
                   </div>
-                  
-                  <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4 min-w-0">
-                    <div className="flex items-start sm:items-center gap-4 flex-1 min-w-0">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${task.color || 'bg-gray-100 text-gray-500'}`}>
-                        <Icon size={20} />
-                      </div>
+
+                  {/* Main content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
-                        <h4 className={`text-sm font-bold truncate ${task.checked ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                        <h4 className={`text-sm font-bold leading-snug ${task.checked ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
                           {task.title}
                         </h4>
-                        <p className="text-xs text-gray-500 mt-1 truncate">{task.description}</p>
+                        {task.description && (
+                          <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{task.description}</p>
+                        )}
+                      </div>
+
+                      {/* Action button — right side */}
+                      <div className="shrink-0">
+                        {task.status === 'Chưa làm' && (
+                          <button
+                            onClick={(e) => handleUpdateStatus(e, task, 2)}
+                            className="text-[10px] font-bold px-2 py-1 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 whitespace-nowrap transition-colors"
+                          >
+                            Bắt đầu
+                          </button>
+                        )}
+                        {task.status === 'Đang làm' && (
+                          <button
+                            onClick={(e) => handleUpdateStatus(e, task, 3)}
+                            className="text-[10px] font-bold px-2 py-1 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200 whitespace-nowrap transition-colors"
+                          >
+                            Hoàn thành
+                          </button>
+                        )}
+                        {task.status === 'Hoàn thành' && (
+                          <div
+                            className="w-6 h-6 rounded border border-primary bg-primary flex items-center justify-center text-white cursor-pointer"
+                            onClick={(e) => handleUpdateStatus(e, task, 1)}
+                          >
+                            <CheckSquare size={14} className="text-white" />
+                          </div>
+                        )}
+                        {['Tạm hoãn', 'Hủy bỏ', 'Quá hạn'].includes(task.status) && (
+                          <div className="w-6 h-6 rounded-full border border-gray-200 bg-gray-50 flex items-center justify-center">
+                            <X size={12} className="text-gray-400" />
+                          </div>
+                        )}
                       </div>
                     </div>
-                    
-                    <div className="flex items-center gap-4 sm:gap-6 self-start sm:self-auto shrink-0 pl-14 sm:pl-0">
+
+                    {/* Meta row: date + badges */}
+                    <div className="flex items-center flex-wrap gap-1.5 mt-2">
+                      <span className="flex items-center gap-1 text-[10px] text-gray-400">
+                        <Calendar size={11} />
+                        {task.date}
+                      </span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getStatusColor(task.status)}`}>
+                        {task.status}
+                      </span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getPriorityColor(task.priority)}`}>
+                        {task.priority}
+                      </span>
                       {task.image_url && (
-                        <div className="w-8 h-8 rounded-lg overflow-hidden border border-gray-100 shrink-0 select-none">
+                        <div className="w-5 h-5 rounded overflow-hidden border border-gray-100 shrink-0">
                           <img src={task.image_url} alt="attachment" className="w-full h-full object-cover" />
                         </div>
                       )}
-                      
-                      <div className="flex items-center gap-1.5 text-gray-500 text-xs w-24">
-                        <Calendar size={14} />
-                        <span>{task.date}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 w-[170px] shrink-0 justify-end">
-                        <span className={`w-[80px] text-center whitespace-nowrap px-1 py-1 rounded-full text-[10px] font-bold border truncate ${getStatusColor(task.status)}`}>
-                          {task.status}
-                        </span>
-                        <span className={`w-[80px] text-center whitespace-nowrap px-1 py-1 rounded-full text-[10px] font-bold border truncate ${getPriorityColor(task.priority)}`}>
-                          {task.priority}
-                        </span>
-                      </div>
                     </div>
                   </div>
                 </div>

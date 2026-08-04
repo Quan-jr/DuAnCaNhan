@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from 'react';
 import PageHeader from '@/components/shared/PageHeader';
 import WhiteStatCard from '@/components/shared/WhiteStatCard';
 import TaskListExtended from '@/components/tasks/TaskListExtended';
+import TaskActivityLog from '@/components/tasks/TaskActivityLog';
+import TaskHistoryLog from '@/components/tasks/TaskHistoryLog';
 import TaskSidebar from '@/components/tasks/TaskSidebar';
 import { CheckSquare, RefreshCw, CheckCircle, Clock, X, Camera, Upload, Trash2, FileText, ShoppingCart, BookOpen, Activity, Monitor, Plane, Calendar } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -382,7 +384,7 @@ export default function TasksPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
         <WhiteStatCard 
           title="Tổng số task"
           amount={totalTasks.toString()}
@@ -421,16 +423,9 @@ export default function TasksPage() {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="col-span-1 lg:col-span-7 xl:col-span-7 flex flex-col gap-6">
-          <TaskListExtended 
-            tasks={filteredTasks} 
-            loading={loading} 
-            fetchTasks={fetchTasks} 
-            onEdit={handleEditTask}
-          />
-        </div>
-        <div className="col-span-1 lg:col-span-5 xl:col-span-5">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        {/* Sidebar Filter: first on mobile, right on desktop */}
+        <div className="col-span-1 lg:col-span-5 xl:col-span-5 flex flex-col gap-6 order-1 lg:order-2">
           <TaskSidebar 
             tasks={filteredTasks}
             searchQuery={searchQuery}
@@ -445,6 +440,15 @@ export default function TasksPage() {
             setFilterDate={setFilterDate}
             onClearFilters={handleClearFilters}
             hasFilters={Boolean(searchQuery || filterStatus !== 'Tất cả' || filterPriority !== 'Tất cả' || filterDate || filterMonth)}
+          />
+        </div>
+        {/* Task List: second on mobile, left on desktop */}
+        <div className="col-span-1 lg:col-span-7 xl:col-span-7 flex flex-col h-full order-2 lg:order-1">
+          <TaskListExtended 
+            tasks={filteredTasks} 
+            loading={loading} 
+            fetchTasks={fetchTasks} 
+            onEdit={handleEditTask}
           />
         </div>
       </div>
