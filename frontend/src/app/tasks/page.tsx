@@ -71,8 +71,21 @@ const availableIcons = [
   { name: 'clock', icon: Clock, label: 'Thời gian' },
 ];
 
+const getTodayIso = () => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 const formatDate = (dateStr: string) => {
   if (!dateStr) return '';
+  const str = String(dateStr);
+  const match = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    return `${match[3]}/${match[2]}/${match[1]}`;
+  }
   try {
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return '';
@@ -87,6 +100,11 @@ const formatDate = (dateStr: string) => {
 
 const toIsoDateString = (dateStr: string) => {
   if (!dateStr) return '';
+  const str = String(dateStr);
+  const match = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    return `${match[1]}-${match[2]}-${match[3]}`;
+  }
   try {
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return '';
@@ -101,6 +119,11 @@ const toIsoDateString = (dateStr: string) => {
 
 const toIsoMonthString = (dateStr: string) => {
   if (!dateStr) return '';
+  const str = String(dateStr);
+  const match = str.match(/^(\d{4})-(\d{2})/);
+  if (match) {
+    return `${match[1]}-${match[2]}`;
+  }
   try {
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return '';
@@ -253,7 +276,7 @@ export default function TasksPage() {
             id__priority: priorityToIdMap[taskPriority] || 2,
             photo: taskImage,
             icon: taskIcon,
-            created_date: taskDate || new Date().toISOString(),
+            created_date: taskDate || getTodayIso(),
           })
           .eq('id', editingTaskId);
 
@@ -269,7 +292,7 @@ export default function TasksPage() {
               id__priority: priorityToIdMap[taskPriority] || 2,
               photo: taskImage,
               icon: taskIcon,
-              created_date: taskDate || new Date().toISOString(),
+              created_date: taskDate || getTodayIso(),
             }
           ]);
 
