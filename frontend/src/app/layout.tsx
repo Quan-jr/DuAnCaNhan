@@ -23,7 +23,7 @@ export default function RootLayout({
       <body className={`${inter.variable} antialiased flex bg-background min-h-screen relative`}>
         <CircularNavMenu />
         <main className="flex-1 flex flex-col min-h-screen overflow-y-auto w-full">
-          <div className="p-4 pt-24 lg:pt-24 lg:p-8 grow shrink-0 max-w-7xl mx-auto w-full">
+          <div className="p-4 pt-20 lg:pt-24 sm:px-6 lg:px-8 xl:px-10 grow shrink-0 w-full">
             {children}
           </div>
           <footer className="w-full p-4 lg:px-8 pb-8 text-center text-sm text-gray-500 mt-auto">
