@@ -58,13 +58,12 @@ export default function WalletList({ rawRows = [], loading = false }: WalletList
               <th className="p-4 font-medium">salary_day</th>
               <th className="p-4 font-medium text-right">initial_balance</th>
               <th className="p-4 font-medium text-right">amount</th>
-              <th className="p-4 font-medium">type</th>
             </tr>
           </thead>
           <tbody>
             {currentRows.length === 0 ? (
               <tr>
-                <td colSpan={6} className="p-8 text-center text-gray-400 text-sm">
+                <td colSpan={5} className="p-8 text-center text-gray-400 text-sm">
                   Không có dữ liệu trong bảng wallets
                 </td>
               </tr>
@@ -79,17 +78,6 @@ export default function WalletList({ rawRows = [], loading = false }: WalletList
                   </td>
                   <td className="p-4 text-sm font-bold text-right text-primary">
                     {row.amount != null ? `${Number(row.amount).toLocaleString('vi-VN')} đ` : 'NULL'}
-                  </td>
-                  <td className="p-4 text-sm">
-                    {row.type ? (
-                      <span className={`px-2 py-1 rounded-md text-[10px] font-bold ${
-                        String(row.type).toLowerCase() === 'thu' ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'
-                      }`}>
-                        {row.type}
-                      </span>
-                    ) : (
-                      'NULL'
-                    )}
                   </td>
                 </tr>
               ))

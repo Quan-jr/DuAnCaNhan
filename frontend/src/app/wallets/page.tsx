@@ -102,8 +102,7 @@ export default function WalletsPage() {
         {
           salary_day: walletDate,
           initial_balance: balance,
-          type: 'thu', // Coi như thu nhập ban đầu
-          amount: balance // Hoặc để null, nhưng để amount để tiện cộng dồn
+          amount: balance
         }
       ]);
 
@@ -127,13 +126,13 @@ export default function WalletsPage() {
     }
 
     try {
-      const finalAmount = parseInt(txAmount.replace(/\D/g, ''), 10);
+      const rawVal = parseInt(txAmount.replace(/\D/g, ''), 10);
+      const finalAmount = txType === 'chi' ? -rawVal : rawVal;
 
       const { error } = await supabase.from('wallets').insert([
         {
           salary_day: txDate,
-          amount: finalAmount,
-          type: txType
+          amount: finalAmount
         }
       ]);
 
@@ -184,21 +183,17 @@ export default function WalletsPage() {
             });
           }
 
-          // Generate ledger from rows that have amount and type
-          if (row.amount != null && row.type) {
+          // Generate ledger from rows that have amount
+          if (row.amount != null) {
             const numAmount = Number(row.amount);
-            const isChi = String(row.type).toLowerCase() === 'chi';
-            if (isChi) {
-              txSum -= numAmount;
-            } else {
-              txSum += numAmount;
-            }
+            const isExpense = numAmount < 0;
+            txSum += numAmount;
             
             ledgerEntries.push({
               id: row.id,
-              type: isChi ? 'expense' : 'income',
+              type: isExpense ? 'expense' : 'income',
               title: 'Giao dịch',
-              amount: isChi ? -numAmount : numAmount,
+              amount: numAmount,
               dateStr: row.salary_day,
               dateObj: new Date(row.salary_day || 0)
             });
