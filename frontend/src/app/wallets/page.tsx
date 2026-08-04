@@ -96,13 +96,33 @@ export default function WalletsPage() {
 
     try {
       const balance = parseInt(walletInitialBalance.replace(/\D/g, ''), 10);
+      const dateVal = walletDate || new Date().toISOString().split('T')[0];
+      const d = new Date(dateVal);
+      const monthStr = `${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 
-      // Insert into wallets table with actual DB columns
+      // 1. Insert into earnings table first
+      const { data: earnData, error: earnErr } = await supabase
+        .from('earnings')
+        .insert([
+          {
+            amount: balance,
+            salary_day: dateVal,
+            description: walletName || `Số dư đầu tháng ${monthStr}`
+          }
+        ])
+        .select();
+
+      if (earnErr) throw earnErr;
+
+      const newEarnId = earnData && earnData.length > 0 ? earnData[0].id : null;
+
+      // 2. Insert into wallets table with initial_balance_id linked
       const { error: walletErr } = await supabase.from('wallets').insert([
         {
-          budget_month: walletBudgetMonth || '08/2026',
+          budget_month: walletBudgetMonth || monthStr,
+          initial_balance_id: newEarnId,
           current_balance: balance,
-          transaction_date: walletDate || new Date().toISOString().split('T')[0],
+          transaction_date: dateVal,
           'Cash book': balance
         }
       ]);
@@ -129,12 +149,30 @@ export default function WalletsPage() {
     try {
       const rawVal = parseInt(txAmount.replace(/\D/g, ''), 10);
       const finalAmount = txType === 'chi' ? -rawVal : rawVal;
+      const dateVal = txDate || new Date().toISOString().split('T')[0];
+      const d = new Date(dateVal);
+      const monthStr = `${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+
+      // Find the latest initial_balance_id for this month
+      let monthEarnId = null;
+      const { data: latestWallets } = await supabase
+        .from('wallets')
+        .select('initial_balance_id')
+        .eq('budget_month', monthStr)
+        .not('initial_balance_id', 'is', null)
+        .order('id', { ascending: false })
+        .limit(1);
+
+      if (latestWallets && latestWallets.length > 0) {
+        monthEarnId = latestWallets[0].initial_balance_id;
+      }
 
       const { error } = await supabase.from('wallets').insert([
         {
-          budget_month: '08/2026',
+          budget_month: monthStr,
+          initial_balance_id: monthEarnId,
           current_balance: finalAmount,
-          transaction_date: txDate || new Date().toISOString().split('T')[0]
+          transaction_date: dateVal
         }
       ]);
 
@@ -156,10 +194,18 @@ export default function WalletsPage() {
     try {
       setLoading(true);
       
-      // Fetch everything from the single wallets table
+      // Fetch everything from wallets joined with earnings
       const { data: dbData, error } = await supabase
         .from('wallets')
-        .select('*')
+        .select(`
+          *,
+          earnings:initial_balance_id (
+            id,
+            amount,
+            salary_day,
+            description
+          )
+        `)
         .order('id', { ascending: true });
 
       if (error) throw error;
@@ -177,9 +223,11 @@ export default function WalletsPage() {
           const val = row.current_balance ?? row['Cash book'] ?? 0;
           const numVal = Number(val);
           
-          if (numVal > 0) {
-            initialBalanceSum += numVal;
-          } else {
+          if (row.earnings?.amount) {
+            initialBalanceSum = Math.max(initialBalanceSum, Number(row.earnings.amount));
+          }
+
+          if (numVal < 0) {
             txSum += numVal;
           }
 

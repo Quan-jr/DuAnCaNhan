@@ -73,7 +73,11 @@ export default function WalletList({ rawRows = [], loading = false }: WalletList
                 <tr key={row.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                   <td className="p-4 text-sm font-semibold text-gray-800">{row.id}</td>
                   <td className="p-4 text-xs font-medium text-gray-700">{row.budget_month ? String(row.budget_month) : 'NULL'}</td>
-                  <td className="p-4 text-xs text-gray-500">{row.initial_balance_id != null ? String(row.initial_balance_id) : 'NULL'}</td>
+                  <td className="p-4 text-xs font-semibold text-emerald-600">
+                    {row.earnings?.amount != null
+                      ? `${Number(row.earnings.amount).toLocaleString('vi-VN')} đ`
+                      : (row.initial_balance_id != null ? String(row.initial_balance_id) : 'NULL')}
+                  </td>
                   <td className="p-4 text-sm font-bold text-right text-emerald-600">
                     {row['Cash book'] != null ? `${Number(row['Cash book']).toLocaleString('vi-VN')} đ` : 'NULL'}
                   </td>
