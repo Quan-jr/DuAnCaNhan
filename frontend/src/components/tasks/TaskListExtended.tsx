@@ -20,9 +20,10 @@ interface TaskListExtendedProps {
   tasks: any[];
   loading: boolean;
   fetchTasks: () => Promise<void>;
+  onEdit?: (task: any) => void;
 }
 
-export default function TaskListExtended({ tasks, loading, fetchTasks }: TaskListExtendedProps) {
+export default function TaskListExtended({ tasks, loading, fetchTasks, onEdit }: TaskListExtendedProps) {
   const [selectedTask, setSelectedTask] = useState<any>(null);
 
   const getStatusColor = (status: string) => {
@@ -53,6 +54,22 @@ export default function TaskListExtended({ tasks, loading, fetchTasks }: TaskLis
       fetchTasks();
     } catch (err: any) {
       alert(`Lỗi khi cập nhật trạng thái: ${err.message}`);
+    }
+  };
+
+  const handleDelete = async (taskId: number) => {
+    if (!confirm('Bạn có chắc chắn muốn xóa bản ghi này?')) return;
+    try {
+      const { error } = await supabase
+        .from('task_list')
+        .delete()
+        .eq('id', taskId);
+      
+      if (error) throw error;
+      setSelectedTask(null);
+      fetchTasks();
+    } catch (err: any) {
+      alert(`Lỗi khi xóa: ${err.message}`);
     }
   };
 
@@ -210,9 +227,26 @@ export default function TaskListExtended({ tasks, loading, fetchTasks }: TaskLis
 
             <div className="flex flex-col gap-2">
               <h3 className="text-lg font-bold text-gray-900 leading-snug">{selectedTask.title}</h3>
-              <div className="flex items-center gap-1.5 text-gray-500 text-xs">
-                <Calendar size={14} />
-                <span>Hạn chót: {selectedTask.date}</span>
+              <div className="flex items-center gap-4 text-gray-500 text-xs mt-1">
+                <div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md border border-gray-100">
+                  <Calendar size={14} />
+                  <span>Bắt đầu: {selectedTask.date}</span>
+                </div>
+                <div className="flex items-center gap-1.5 bg-orange-50 px-2.5 py-1 rounded-md border border-orange-100 text-orange-600">
+                  <Clock size={14} />
+                  <span className="font-medium">Hạn chót: {
+                    (() => {
+                      if (!selectedTask.date) return '';
+                      const parts = selectedTask.date.split('/');
+                      if (parts.length !== 3) return selectedTask.date;
+                      const d = new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0]));
+                      const day = d.getDay();
+                      const diff = (day === 0 ? 1 : 8 - day);
+                      d.setDate(d.getDate() + diff);
+                      return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+                    })()
+                  }</span>
+                </div>
               </div>
             </div>
 
@@ -239,9 +273,18 @@ export default function TaskListExtended({ tasks, loading, fetchTasks }: TaskLis
                 Đóng
               </button>
               <button 
+                className="flex-[0.8] py-2 px-4 bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 text-sm font-semibold rounded-xl transition-colors"
+                onClick={() => handleDelete(selectedTask.id)}
+              >
+                Xóa
+              </button>
+              <button 
                 className="flex-1 py-2 px-4 bg-primary hover:bg-primary/90 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors"
                 onClick={() => {
-                  alert('Tính năng chỉnh sửa đang được phát triển!');
+                  if (onEdit) {
+                    onEdit(selectedTask);
+                    setSelectedTask(null);
+                  }
                 }}
               >
                 Chỉnh sửa

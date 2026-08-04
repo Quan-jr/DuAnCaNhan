@@ -31,12 +31,8 @@ export default function Sidebar() {
       {/* Mobile Header with Hamburger */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-100 z-20 flex items-center justify-between px-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor"/>
-              <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden shrink-0">
+            <img src="/logo.jpg" alt="Logo" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-lg font-bold text-gray-800">Quản lý cá nhân</h1>
         </div>
@@ -60,12 +56,8 @@ export default function Sidebar() {
         <div className="p-6">
           <div className="flex items-center justify-between lg:justify-start gap-3 mb-8">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor"/>
-                  <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden shrink-0">
+                <img src="/logo.jpg" alt="Logo" className="w-full h-full object-cover" />
               </div>
               <h1 className="text-xl font-bold text-gray-800 hidden lg:block">Quản lý cá nhân</h1>
             </div>
@@ -101,8 +93,8 @@ export default function Sidebar() {
           <div className="flex items-center gap-3 mb-4">
             <img src="https://i.pravatar.cc/150?u=a042581f4e29026024d" alt="User" className="w-10 h-10 rounded-full" />
             <div className="flex flex-col">
-              <span className="text-sm font-semibold text-gray-900">Nguyễn Văn A</span>
-              <span className="text-xs text-gray-500">nguyenvana@gmail.com</span>
+              <span className="text-sm font-semibold text-gray-900">Dương Minh Quân</span>
+              <span className="text-xs text-gray-500">duongminhquan@gmail.com</span>
             </div>
           </div>
           <button className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-primary/10 text-primary font-medium rounded-xl hover:bg-primary/20 transition-colors">

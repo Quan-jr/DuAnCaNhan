@@ -13,7 +13,7 @@ export default function Dashboard() {
       {/* Header Area */}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Xin chào, Nguyễn Văn A! 👋</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Xin chào, Dương Minh Quân! 👋</h1>
           <p className="text-sm text-gray-500 mt-1">Đây là tổng quan tài chính và công việc của bạn.</p>
         </div>
         <div className="flex items-center gap-2 sm:gap-4 w-full md:w-auto justify-between md:justify-end">

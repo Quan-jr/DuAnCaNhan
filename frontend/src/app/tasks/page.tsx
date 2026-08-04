@@ -87,6 +87,7 @@ const formatDate = (dateStr: string) => {
 
 export default function TasksPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Tasks state
@@ -182,6 +183,27 @@ export default function TasksPage() {
     }
   };
 
+  const handleEditTask = (task: any) => {
+    setEditingTaskId(task.id);
+    setTaskTitle(task.title);
+    setTaskDesc(task.description || '');
+    
+    // Convert 'DD/MM/YYYY' to 'YYYY-MM-DD' for input type="date"
+    let isoDate = '';
+    if (task.date) {
+      const parts = task.date.split('/');
+      if (parts.length === 3) {
+        isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+    }
+    setTaskDate(isoDate);
+    setTaskPriority(task.priority);
+    setTaskStatus(task.status);
+    setTaskImage(task.image_url || null);
+    setTaskIcon(task.icon || 'file-text');
+    setIsAddModalOpen(true);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!taskTitle.trim()) {
@@ -190,22 +212,41 @@ export default function TasksPage() {
     }
     
     try {
-      const { error } = await supabase
-        .from('task_list')
-        .insert([
-          {
+      if (editingTaskId) {
+        const { error } = await supabase
+          .from('task_list')
+          .update({
             title: taskTitle,
             description: taskDesc,
             id__status: statusToIdMap[taskStatus] || 1,
             id__priority: priorityToIdMap[taskPriority] || 2,
             photo: taskImage,
             icon: taskIcon,
-          }
-        ]);
+            created_date: taskDate || new Date().toISOString(),
+          })
+          .eq('id', editingTaskId);
 
-      if (error) throw error;
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('task_list')
+          .insert([
+            {
+              title: taskTitle,
+              description: taskDesc,
+              id__status: 1, // Mặc định là Chưa làm
+              id__priority: priorityToIdMap[taskPriority] || 2,
+              photo: taskImage,
+              icon: taskIcon,
+              created_date: taskDate || new Date().toISOString(),
+            }
+          ]);
+
+        if (error) throw error;
+      }
 
       // Reset and close
+      setEditingTaskId(null);
       setTaskTitle('');
       setTaskDesc('');
       setTaskDate('');
@@ -318,7 +359,17 @@ export default function TasksPage() {
             
             <button 
               className="bg-primary text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors shadow-sm whitespace-nowrap"
-              onClick={() => setIsAddModalOpen(true)}
+              onClick={() => {
+                setEditingTaskId(null);
+                setTaskTitle('');
+                setTaskDesc('');
+                setTaskDate('');
+                setTaskPriority('Trung bình');
+                setTaskStatus('Chưa làm');
+                setTaskImage(null);
+                setTaskIcon('file-text');
+                setIsAddModalOpen(true);
+              }}
               type="button"
             >
               + Thêm công việc
@@ -368,7 +419,7 @@ export default function TasksPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="col-span-1 lg:col-span-7 xl:col-span-7 flex flex-col gap-6">
-          <TaskListExtended tasks={filteredTasks} loading={loading} fetchTasks={fetchTasks} />
+          <TaskListExtended tasks={filteredTasks} loading={loading} fetchTasks={fetchTasks} onEdit={handleEditTask} />
         </div>
         <div className="col-span-1 lg:col-span-5 xl:col-span-5">
           <TaskSidebar tasks={filteredTasks} />
@@ -394,7 +445,7 @@ export default function TasksPage() {
               <X size={18} />
             </button>
 
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Thêm công việc mới</h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">{editingTaskId ? 'Chỉnh sửa công việc' : 'Thêm công việc mới'}</h3>
 
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-gray-700">Tiêu đề công việc <span className="text-danger">*</span></label>
@@ -446,15 +497,26 @@ export default function TasksPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-bold text-gray-700 font-medium">Trạng thái</label>
-                <select 
-                  className="w-full px-3.5 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white text-gray-700"
-                  value={taskStatus}
-                  onChange={(e) => setTaskStatus(e.target.value)}
-                >
-                  <option value="Chưa làm">Chưa làm</option>
-                  <option value="Đang làm">Đang làm</option>
-                  <option value="Hoàn thành">Hoàn thành</option>
-                </select>
+                {editingTaskId ? (
+                  <select 
+                    className="w-full px-3.5 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white text-gray-700"
+                    value={taskStatus}
+                    onChange={(e) => setTaskStatus(e.target.value)}
+                  >
+                    <option value="Chưa làm">Chưa làm</option>
+                    <option value="Đang làm">Đang làm</option>
+                    <option value="Hoàn thành">Hoàn thành</option>
+                    <option value="Tạm hoãn">Tạm hoãn</option>
+                    <option value="Hủy bỏ">Hủy bỏ</option>
+                  </select>
+                ) : (
+                  <input 
+                    type="text"
+                    className="w-full px-3.5 py-2 border border-gray-200 rounded-xl text-sm bg-gray-50 text-gray-500 cursor-not-allowed"
+                    value="Chưa làm (Mặc định)"
+                    disabled
+                  />
+                )}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -471,14 +533,32 @@ export default function TasksPage() {
               </div>
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-gray-700">Hạn chót</label>
-              <input 
-                type="date"
-                className="w-full px-3.5 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white text-gray-700"
-                value={taskDate}
-                onChange={(e) => setTaskDate(e.target.value)}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-gray-700">Ngày bắt đầu</label>
+                <input 
+                  type="date"
+                  className="w-full px-3.5 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white text-gray-700"
+                  value={taskDate}
+                  onChange={(e) => setTaskDate(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-gray-700">Hạn chót (Tự động)</label>
+                <input 
+                  type="text"
+                  className="w-full px-3.5 py-2 border border-orange-200 rounded-xl text-sm bg-orange-50 text-orange-600 font-medium cursor-not-allowed"
+                  value={(() => {
+                    const d = taskDate ? new Date(taskDate) : new Date();
+                    if (isNaN(d.getTime())) return '';
+                    const day = d.getDay();
+                    const diff = (day === 0 ? 1 : 8 - day);
+                    d.setDate(d.getDate() + diff);
+                    return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+                  })()}
+                  disabled
+                />
+              </div>
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -539,7 +619,7 @@ export default function TasksPage() {
                 type="submit"
                 className="flex-1 py-2.5 px-4 bg-primary hover:bg-primary/90 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors"
               >
-                Lưu công việc
+                {editingTaskId ? 'Cập nhật' : 'Lưu công việc'}
               </button>
             </div>
           </form>

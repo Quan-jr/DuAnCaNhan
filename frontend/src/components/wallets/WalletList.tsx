@@ -14,10 +14,11 @@ interface WalletListProps {
   onSelectWallet?: (walletId: number) => void;
   selectedWalletId?: number;
   wallets?: any[];
+  ledger?: any[];
   loading?: boolean;
 }
 
-export default function WalletList({ onSelectWallet, selectedWalletId = 1, wallets, loading = false }: WalletListProps) {
+export default function WalletList({ onSelectWallet, selectedWalletId = 1, wallets, ledger = [], loading = false }: WalletListProps) {
   const list = wallets || mockWallets;
 
   if (loading) {
@@ -31,70 +32,67 @@ export default function WalletList({ onSelectWallet, selectedWalletId = 1, walle
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full overflow-hidden">
-      <div className="p-6 border-b border-gray-100">
-        <h2 className="text-lg font-bold text-gray-900">Danh sách ví</h2>
+      <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+        <h2 className="text-lg font-bold text-gray-900">Lịch sử biến động số dư</h2>
+        {list.length > 0 && (
+          <select 
+            className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-medium text-gray-700"
+            value={selectedWalletId}
+            onChange={(e) => onSelectWallet?.(Number(e.target.value))}
+          >
+            {list.map(w => (
+              <option key={w.id} value={w.id}>{w.name}</option>
+            ))}
+          </select>
+        )}
       </div>
       
       <div className="overflow-x-auto flex-1">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-gray-100 text-xs font-semibold text-gray-500 bg-gray-50/50">
-              <th className="p-4 font-medium">Tên ví</th>
-              <th className="p-4 font-medium">Ngân sách tháng</th>
-              <th className="p-4 font-medium">Số dư đầu</th>
-              <th className="p-4 font-medium">Số dư hiện tại</th>
-              <th className="p-4 font-medium">Ngày giao dịch</th>
-              <th className="p-4 font-medium w-10"></th>
+              <th className="p-4 font-medium">Mô tả giao dịch</th>
+              <th className="p-4 font-medium">Loại</th>
+              <th className="p-4 font-medium text-right">Số tiền</th>
+              <th className="p-4 font-medium text-right">Số dư hiện tại</th>
+              <th className="p-4 font-medium text-right">Ngày thực hiện</th>
             </tr>
           </thead>
           <tbody>
-            {list.map((wallet) => {
-              const Icon = iconMap[wallet.icon] || Wallet;
-              const isSelected = selectedWalletId === wallet.id;
-              
-              // Color logic: green if increased (income), red if decreased (expense)
-              const balanceColor = wallet.currentBalance > wallet.initialBalance
-                ? 'text-success'
-                : wallet.currentBalance < wallet.initialBalance
-                  ? 'text-danger'
-                  : 'text-gray-900';
-
-              return (
-                <tr 
-                  key={wallet.id} 
-                  onClick={() => onSelectWallet?.(wallet.id)}
-                  className={`border-b border-gray-50 cursor-pointer transition-colors ${
-                    isSelected ? 'bg-primary/5' : 'hover:bg-gray-50'
-                  }`}
-                >
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-sm ${wallet.color || 'bg-indigo-500'}`}>
-                        <Icon size={20} />
-                      </div>
-                      <span className="font-bold text-gray-900 text-sm">{wallet.name}</span>
-                    </div>
-                  </td>
-                  <td className="p-4 text-sm text-gray-600">{wallet.month}</td>
-                  <td className="p-4 text-sm font-medium text-gray-700">{wallet.initialBalance.toLocaleString('vi-VN')} đ</td>
-                  <td className={`p-4 text-sm font-bold ${balanceColor}`}>
-                    {wallet.currentBalance.toLocaleString('vi-VN')} đ
-                  </td>
-                  <td className="p-4 text-sm text-gray-500">{wallet.date}</td>
-                  <td className="p-4">
-                    <button className="text-gray-400 hover:text-gray-700 p-1 rounded-md hover:bg-gray-100 transition-colors">
-                      <MoreHorizontal size={18} />
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
+            {ledger.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="p-8 text-center text-gray-400 text-sm">Không có dữ liệu giao dịch</td>
+              </tr>
+            ) : (
+              ledger.map((entry) => {
+                const isIncome = entry.type === 'income';
+                return (
+                  <tr key={entry.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                    <td className="p-4">
+                      <span className="font-semibold text-gray-800 text-sm">{entry.title}</span>
+                    </td>
+                    <td className="p-4 text-sm">
+                      <span className={`px-2 py-1 rounded-md text-[10px] font-bold ${isIncome ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'}`}>
+                        {isIncome ? 'Thu nhập' : 'Chi tiêu'}
+                      </span>
+                    </td>
+                    <td className={`p-4 text-sm font-bold text-right ${isIncome ? 'text-success' : 'text-danger'}`}>
+                      {isIncome ? '+' : ''}{entry.amount.toLocaleString('vi-VN')} đ
+                    </td>
+                    <td className="p-4 text-sm font-bold text-primary text-right">
+                      {entry.runningBalance.toLocaleString('vi-VN')} đ
+                    </td>
+                    <td className="p-4 text-sm text-gray-500 text-right">{entry.displayDate}</td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>
       
-      <div className="p-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-        <span>Hiển thị 1 đến {list.length} của {list.length} ví</span>
+      <div className="p-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500 mt-auto">
+        <span>Hiển thị 1 đến {ledger.length} của {ledger.length} bản ghi</span>
         <div className="flex gap-1">
           <button className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 hover:bg-gray-50 disabled:opacity-50">&lt;</button>
           <button className="w-8 h-8 rounded-lg flex items-center justify-center bg-primary text-white shadow-sm">1</button>
