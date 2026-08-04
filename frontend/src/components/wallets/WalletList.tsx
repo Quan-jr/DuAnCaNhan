@@ -54,16 +54,17 @@ export default function WalletList({ rawRows = [], loading = false }: WalletList
           <thead>
             <tr className="border-b border-gray-100 text-xs font-semibold text-gray-500 bg-gray-50/50">
               <th className="p-4 font-medium">id</th>
-              <th className="p-4 font-medium">created_at</th>
-              <th className="p-4 font-medium">salary_day</th>
-              <th className="p-4 font-medium text-right">initial_balance</th>
-              <th className="p-4 font-medium text-right">amount</th>
+              <th className="p-4 font-medium">budget_month</th>
+              <th className="p-4 font-medium">initial_balance_id</th>
+              <th className="p-4 font-medium text-right">Cash book</th>
+              <th className="p-4 font-medium text-right">current_balance</th>
+              <th className="p-4 font-medium">transaction_date</th>
             </tr>
           </thead>
           <tbody>
             {currentRows.length === 0 ? (
               <tr>
-                <td colSpan={5} className="p-8 text-center text-gray-400 text-sm">
+                <td colSpan={6} className="p-8 text-center text-gray-400 text-sm">
                   Không có dữ liệu trong bảng wallets
                 </td>
               </tr>
@@ -71,14 +72,15 @@ export default function WalletList({ rawRows = [], loading = false }: WalletList
               currentRows.map((row) => (
                 <tr key={row.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                   <td className="p-4 text-sm font-semibold text-gray-800">{row.id}</td>
-                  <td className="p-4 text-xs text-gray-500">{formatDate(row.created_at)}</td>
-                  <td className="p-4 text-xs text-gray-500">{row.salary_day ? String(row.salary_day) : 'NULL'}</td>
-                  <td className="p-4 text-sm font-bold text-right text-gray-700">
-                    {row.initial_balance != null ? `${Number(row.initial_balance).toLocaleString('vi-VN')} đ` : 'NULL'}
+                  <td className="p-4 text-xs font-medium text-gray-700">{row.budget_month ? String(row.budget_month) : 'NULL'}</td>
+                  <td className="p-4 text-xs text-gray-500">{row.initial_balance_id != null ? String(row.initial_balance_id) : 'NULL'}</td>
+                  <td className="p-4 text-sm font-bold text-right text-emerald-600">
+                    {row['Cash book'] != null ? `${Number(row['Cash book']).toLocaleString('vi-VN')} đ` : 'NULL'}
                   </td>
                   <td className="p-4 text-sm font-bold text-right text-primary">
-                    {row.amount != null ? `${Number(row.amount).toLocaleString('vi-VN')} đ` : 'NULL'}
+                    {row.current_balance != null ? `${Number(row.current_balance).toLocaleString('vi-VN')} đ` : 'NULL'}
                   </td>
+                  <td className="p-4 text-xs text-gray-500">{row.transaction_date ? formatDate(row.transaction_date) : 'NULL'}</td>
                 </tr>
               ))
             )}

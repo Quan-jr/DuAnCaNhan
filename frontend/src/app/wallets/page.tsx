@@ -97,12 +97,13 @@ export default function WalletsPage() {
     try {
       const balance = parseInt(walletInitialBalance.replace(/\D/g, ''), 10);
 
-      // Insert into wallets table for initial balance
+      // Insert into wallets table with actual DB columns
       const { error: walletErr } = await supabase.from('wallets').insert([
         {
-          salary_day: walletDate,
-          initial_balance: balance,
-          amount: balance
+          budget_month: walletBudgetMonth || '08/2026',
+          current_balance: balance,
+          transaction_date: walletDate || new Date().toISOString().split('T')[0],
+          'Cash book': balance
         }
       ]);
 
@@ -131,8 +132,9 @@ export default function WalletsPage() {
 
       const { error } = await supabase.from('wallets').insert([
         {
-          salary_day: txDate,
-          amount: finalAmount
+          budget_month: '08/2026',
+          current_balance: finalAmount,
+          transaction_date: txDate || new Date().toISOString().split('T')[0]
         }
       ]);
 
@@ -172,32 +174,23 @@ export default function WalletsPage() {
 
       if (dbData) {
         dbData.forEach((row: any) => {
-          // Calculate global initial balance (if initial_balance exists)
-          if (row.initial_balance != null) {
-            initialBalanceSum += Number(row.initial_balance);
-            earningsEntries.push({
-              id: row.id,
-              title: 'Số dư ban đầu',
-              date: formatDate(row.salary_day),
-              amount: row.initial_balance
-            });
+          const val = row.current_balance ?? row['Cash book'] ?? 0;
+          const numVal = Number(val);
+          
+          if (numVal > 0) {
+            initialBalanceSum += numVal;
+          } else {
+            txSum += numVal;
           }
 
-          // Generate ledger from rows that have amount
-          if (row.amount != null) {
-            const numAmount = Number(row.amount);
-            const isExpense = numAmount < 0;
-            txSum += numAmount;
-            
-            ledgerEntries.push({
-              id: row.id,
-              type: isExpense ? 'expense' : 'income',
-              title: 'Giao dịch',
-              amount: numAmount,
-              dateStr: row.salary_day,
-              dateObj: new Date(row.salary_day || 0)
-            });
-          }
+          ledgerEntries.push({
+            id: row.id,
+            type: numVal < 0 ? 'expense' : 'income',
+            title: row.budget_month ? `Ngân sách ${row.budget_month}` : 'Giao dịch',
+            amount: numVal,
+            dateStr: row.transaction_date,
+            dateObj: new Date(row.transaction_date || 0)
+          });
         });
       }
 
