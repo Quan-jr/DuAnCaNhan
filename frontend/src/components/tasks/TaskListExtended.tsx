@@ -83,7 +83,7 @@ export default function TaskListExtended({ tasks, loading, fetchTasks, onEdit }:
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full overflow-hidden">
+    <div className="bg-white shadow-sm border border-gray-100 flex flex-col h-full overflow-hidden rounded-md">
       <div className="p-6 border-b border-gray-100 flex items-center justify-between">
         <h2 className="text-lg font-bold text-gray-900">Danh sách công việc</h2>
         <button className="text-gray-400 hover:text-gray-600">
@@ -140,16 +140,16 @@ export default function TaskListExtended({ tasks, loading, fetchTasks, onEdit }:
                     )}
                   </div>
                   
-                  <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-start sm:items-center gap-4 flex-1">
+                  <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4 min-w-0">
+                    <div className="flex items-start sm:items-center gap-4 flex-1 min-w-0">
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${task.color || 'bg-gray-100 text-gray-500'}`}>
                         <Icon size={20} />
                       </div>
-                      <div>
-                        <h4 className={`text-sm font-bold ${task.checked ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                      <div className="min-w-0 flex-1">
+                        <h4 className={`text-sm font-bold truncate ${task.checked ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
                           {task.title}
                         </h4>
-                        <p className="text-xs text-gray-500 mt-1 line-clamp-1">{task.description}</p>
+                        <p className="text-xs text-gray-500 mt-1 truncate">{task.description}</p>
                       </div>
                     </div>
                     
@@ -166,10 +166,10 @@ export default function TaskListExtended({ tasks, loading, fetchTasks, onEdit }:
                       </div>
                       
                       <div className="flex items-center gap-2 w-[170px] shrink-0 justify-end">
-                        <span className={`w-[80px] text-center whitespace-nowrap px-1 py-1 rounded-full text-[10px] font-bold border ${getStatusColor(task.status)}`}>
+                        <span className={`w-[80px] text-center whitespace-nowrap px-1 py-1 rounded-full text-[10px] font-bold border truncate ${getStatusColor(task.status)}`}>
                           {task.status}
                         </span>
-                        <span className={`w-[80px] text-center whitespace-nowrap px-1 py-1 rounded-full text-[10px] font-bold border ${getPriorityColor(task.priority)}`}>
+                        <span className={`w-[80px] text-center whitespace-nowrap px-1 py-1 rounded-full text-[10px] font-bold border truncate ${getPriorityColor(task.priority)}`}>
                           {task.priority}
                         </span>
                       </div>
