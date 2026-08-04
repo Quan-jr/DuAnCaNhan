@@ -43,7 +43,7 @@ export default function WalletList({ rawRows = [], loading = false }: WalletList
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full overflow-hidden">
       <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-gray-900">Bảng wallets (Database)</h2>
+        <h2 className="text-lg font-bold text-gray-900">Lịch sử biến động số dư</h2>
         <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
           {totalItems} bản ghi
         </span>
@@ -53,12 +53,12 @@ export default function WalletList({ rawRows = [], loading = false }: WalletList
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-gray-100 text-xs font-semibold text-gray-500 bg-gray-50/50">
-              <th className="p-4 font-medium">id</th>
-              <th className="p-4 font-medium">budget_month</th>
-              <th className="p-4 font-medium">initial_balance_id</th>
-              <th className="p-4 font-medium text-right">Cash book</th>
-              <th className="p-4 font-medium text-right">current_balance</th>
-              <th className="p-4 font-medium">transaction_date</th>
+              <th className="p-4 font-medium">Mã giao dịch</th>
+              <th className="p-4 font-medium">Tháng ngân sách</th>
+              <th className="p-4 font-medium">Mã số dư ban đầu</th>
+              <th className="p-4 font-medium text-right">Sổ quỹ tiền mặt</th>
+              <th className="p-4 font-medium text-right">Số dư hiện tại</th>
+              <th className="p-4 font-medium">Ngày thực hiện</th>
             </tr>
           </thead>
           <tbody>
