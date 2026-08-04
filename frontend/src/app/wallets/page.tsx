@@ -6,7 +6,7 @@ import WhiteStatCard from '@/components/shared/WhiteStatCard';
 import WalletList from '@/components/wallets/WalletList';
 import WalletDetailSidebar from '@/components/wallets/WalletDetailSidebar';
 import InitialBalanceSources from '@/components/wallets/InitialBalanceSources';
-import { Wallet, PieChart, ArrowDown } from 'lucide-react';
+import { Wallet, PieChart, ArrowDown, Plus, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 const formatDate = (dateStr: string) => {
@@ -63,6 +63,52 @@ export default function WalletsPage() {
   const [earnings, setEarnings] = useState<any[]>([]);
   const [ledger, setLedger] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Modal states
+  const [isTxModalOpen, setIsTxModalOpen] = useState(false);
+  const [txType, setTxType] = useState('chi'); // 'thu' or 'chi'
+  const [txAmount, setTxAmount] = useState('');
+  const [txDescription, setTxDescription] = useState('');
+  const [txDate, setTxDate] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  });
+  const [txWalletId, setTxWalletId] = useState<number | null>(null);
+
+  const handleSubmitTx = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!txAmount || !txDescription || !txWalletId) {
+      alert('Vui lòng nhập đầy đủ thông tin!');
+      return;
+    }
+
+    try {
+      let finalAmount = parseInt(txAmount.replace(/\D/g, ''), 10);
+      if (txType === 'chi') {
+        finalAmount = -finalAmount; // Khoản chi là số âm
+      }
+
+      const { error } = await supabase.from('transactions').insert([
+        {
+          id__wallet: txWalletId,
+          amount: finalAmount,
+          description: txDescription,
+          transaction_date: txDate,
+        }
+      ]);
+
+      if (error) throw error;
+
+      setIsTxModalOpen(false);
+      setTxAmount('');
+      setTxDescription('');
+      
+      // Refresh data to automatically recalculate current_balance
+      fetchData();
+    } catch (error: any) {
+      alert('Lỗi khi thêm giao dịch: ' + error.message);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -220,11 +266,30 @@ export default function WalletsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader 
-        title="Quản lý ví" 
-        subtitle="Theo dõi ngân sách, số dư và kế hoạch chi tiêu của bạn."
-        buttonText="Thêm ví"
-      />
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Quản lý ví</h1>
+          <p className="text-sm text-gray-500 mt-1">Theo dõi ngân sách, số dư và kế hoạch chi tiêu của bạn.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <button 
+            className="flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl font-medium hover:bg-gray-50 transition-colors shadow-sm"
+          >
+            <Plus size={18} />
+            <span>Thêm ví</span>
+          </button>
+          <button 
+            onClick={() => {
+              setTxWalletId(selectedWalletId || (wallets.length > 0 ? wallets[0].id : null));
+              setIsTxModalOpen(true);
+            }}
+            className="flex items-center justify-center gap-2 bg-primary text-white px-4 py-2 rounded-xl font-medium hover:bg-primary/90 transition-colors shadow-sm"
+          >
+            <Plus size={18} />
+            <span>Giao dịch mới</span>
+          </button>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         <WhiteStatCard 
@@ -280,6 +345,123 @@ export default function WalletsPage() {
           <WalletDetailSidebar walletId={selectedWalletId || 1} wallets={wallets} />
         </div>
       </div>
+
+      {/* Add Transaction Modal */}
+      {isTxModalOpen && (
+        <div 
+          className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={() => setIsTxModalOpen(false)}
+        >
+          <form 
+            className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl flex flex-col gap-5 relative animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+            onSubmit={handleSubmitTx}
+          >
+            <button 
+              type="button"
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-50"
+              onClick={() => setIsTxModalOpen(false)}
+            >
+              <X size={18} />
+            </button>
+
+            <h3 className="text-lg font-bold text-gray-900 mb-1">Thêm giao dịch mới</h3>
+
+            <div className="grid grid-cols-2 gap-3 p-1 bg-gray-100 rounded-xl">
+              <button
+                type="button"
+                className={`py-2 text-sm font-semibold rounded-lg transition-all ${
+                  txType === 'chi' ? 'bg-white text-danger shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}
+                onClick={() => setTxType('chi')}
+              >
+                Chi tiêu (-)
+              </button>
+              <button
+                type="button"
+                className={`py-2 text-sm font-semibold rounded-lg transition-all ${
+                  txType === 'thu' ? 'bg-white text-success shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}
+                onClick={() => setTxType('thu')}
+              >
+                Thu nhập (+)
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold text-gray-700">Chọn ví <span className="text-danger">*</span></label>
+              <select 
+                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white text-gray-900"
+                value={txWalletId || ''}
+                onChange={(e) => setTxWalletId(Number(e.target.value))}
+                required
+              >
+                <option value="" disabled>-- Chọn ví --</option>
+                {wallets.map(w => (
+                  <option key={w.id} value={w.id}>{w.name} ({w.currentBalance.toLocaleString('vi-VN')} đ)</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold text-gray-700">Số tiền <span className="text-danger">*</span></label>
+              <div className="relative">
+                <input 
+                  type="text"
+                  className={`w-full pl-3.5 pr-10 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 bg-white font-semibold ${txType === 'thu' ? 'text-success focus:border-success focus:ring-success/20' : 'text-danger focus:border-danger focus:ring-danger/20'}`}
+                  placeholder="Ví dụ: 50000"
+                  value={txAmount}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '');
+                    setTxAmount(val ? Number(val).toLocaleString('vi-VN') : '');
+                  }}
+                  required
+                />
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium text-sm">đ</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold text-gray-700">Mô tả giao dịch <span className="text-danger">*</span></label>
+              <input 
+                type="text"
+                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white text-gray-900"
+                placeholder={txType === 'chi' ? 'Ví dụ: Mua bàn chải đánh răng...' : 'Ví dụ: Trả lương tháng...'}
+                value={txDescription}
+                onChange={(e) => setTxDescription(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold text-gray-700">Ngày giao dịch <span className="text-danger">*</span></label>
+              <input 
+                type="date"
+                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white text-gray-900"
+                value={txDate}
+                onChange={(e) => setTxDate(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="mt-2 flex gap-3">
+              <button 
+                type="button"
+                className="flex-1 py-3 px-4 border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-bold rounded-xl transition-colors"
+                onClick={() => setIsTxModalOpen(false)}
+              >
+                Hủy bỏ
+              </button>
+              <button 
+                type="submit"
+                className="flex-1 py-3 px-4 bg-primary hover:bg-primary/90 text-white text-sm font-bold rounded-xl shadow-sm transition-colors"
+              >
+                Tạo giao dịch
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }
