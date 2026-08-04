@@ -158,7 +158,7 @@ export default function WalletsPage() {
       const { data: dbData, error } = await supabase
         .from('wallets')
         .select('*')
-        .order('id', { ascending: false });
+        .order('id', { ascending: true });
 
       if (error) throw error;
 
