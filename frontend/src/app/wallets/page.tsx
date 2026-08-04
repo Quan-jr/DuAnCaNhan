@@ -105,17 +105,23 @@ export default function WalletsPage() {
       let currentSelectedWalletId = selectedWalletId;
 
       if (walletsData) {
-        processedWallets = walletsData.map((w: any) => ({
-          id: w.id,
-          name: w.earnings?.description || `Ví #${w.id}`,
-          month: w.budget_month,
-          initialBalance: w.earnings?.amount || 0,
-          currentBalance: w.current_balance,
-          date: formatDate(w.transaction_date),
-          icon: getIconForWallet(w.earnings?.description || ''),
-          color: getColorForWallet(w.id),
-          initial_balance_id: w.initial_balance_id,
-        }));
+        processedWallets = walletsData.map((w: any) => {
+          const initialBalance = w.earnings?.amount || 0;
+          const walletTx = txData?.filter((t: any) => t.id__wallet === w.id) || [];
+          const txSum = walletTx.reduce((sum: number, t: any) => sum + (t.amount || 0), 0);
+          
+          return {
+            id: w.id,
+            name: w.earnings?.description || `Ví #${w.id}`,
+            month: w.budget_month,
+            initialBalance: initialBalance,
+            currentBalance: initialBalance + txSum,
+            date: formatDate(w.transaction_date),
+            icon: getIconForWallet(w.earnings?.description || ''),
+            color: getColorForWallet(w.id),
+            initial_balance_id: w.initial_balance_id,
+          };
+        });
         setWallets(processedWallets);
         
         if (processedWallets.length > 0 && currentSelectedWalletId === null) {
