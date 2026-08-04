@@ -75,6 +75,62 @@ export default function WalletsPage() {
   });
   const [txWalletId, setTxWalletId] = useState<number | null>(null);
 
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+  const [walletName, setWalletName] = useState('');
+  const [walletBudgetMonth, setWalletBudgetMonth] = useState(() => {
+    const today = new Date();
+    return `${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+  });
+  const [walletInitialBalance, setWalletInitialBalance] = useState('');
+  const [walletDate, setWalletDate] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  });
+
+  const handleSubmitWallet = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!walletName || !walletBudgetMonth || !walletInitialBalance) {
+      alert('Vui lòng nhập đầy đủ thông tin!');
+      return;
+    }
+
+    try {
+      const balance = parseInt(walletInitialBalance.replace(/\D/g, ''), 10);
+
+      // 1. Insert into earnings first to create the initial balance source
+      const { data: earnData, error: earnErr } = await supabase.from('earnings').insert([
+        {
+          amount: balance,
+          description: walletName,
+          salary_day: walletDate,
+        }
+      ]).select();
+
+      if (earnErr) throw earnErr;
+      const newEarningId = earnData[0].id;
+
+      // 2. Insert into wallets
+      const { error: walletErr } = await supabase.from('wallets').insert([
+        {
+          budget_month: walletBudgetMonth,
+          current_balance: balance,
+          transaction_date: walletDate,
+          initial_balance_id: newEarningId
+        }
+      ]);
+
+      if (walletErr) throw walletErr;
+
+      setIsWalletModalOpen(false);
+      setWalletName('');
+      setWalletInitialBalance('');
+      
+      fetchData();
+    } catch (error: any) {
+      alert('Lỗi khi thêm ví: ' + error.message);
+    }
+  };
+
   const handleSubmitTx = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!txAmount || !txDescription || !txWalletId) {
@@ -273,6 +329,7 @@ export default function WalletsPage() {
         </div>
         <div className="flex items-center gap-3">
           <button 
+            onClick={() => setIsWalletModalOpen(true)}
             className="flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl font-medium hover:bg-gray-50 transition-colors shadow-sm"
           >
             <Plus size={18} />
@@ -457,6 +514,99 @@ export default function WalletsPage() {
                 className="flex-1 py-3 px-4 bg-primary hover:bg-primary/90 text-white text-sm font-bold rounded-xl shadow-sm transition-colors"
               >
                 Tạo giao dịch
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Add Wallet Modal */}
+      {isWalletModalOpen && (
+        <div 
+          className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={() => setIsWalletModalOpen(false)}
+        >
+          <form 
+            className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl flex flex-col gap-5 relative animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+            onSubmit={handleSubmitWallet}
+          >
+            <button 
+              type="button"
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-50"
+              onClick={() => setIsWalletModalOpen(false)}
+            >
+              <X size={18} />
+            </button>
+
+            <h3 className="text-lg font-bold text-gray-900 mb-1">Thêm ví / Quỹ mới</h3>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold text-gray-700">Tên ví / Quỹ <span className="text-danger">*</span></label>
+              <input 
+                type="text"
+                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white text-gray-900"
+                placeholder="Ví dụ: Quỹ du lịch, Tiết kiệm..."
+                value={walletName}
+                onChange={(e) => setWalletName(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold text-gray-700">Tháng ngân sách <span className="text-danger">*</span></label>
+              <input 
+                type="text"
+                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white text-gray-900"
+                placeholder="Ví dụ: 08/2026"
+                value={walletBudgetMonth}
+                onChange={(e) => setWalletBudgetMonth(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold text-gray-700">Số dư ban đầu <span className="text-danger">*</span></label>
+              <div className="relative">
+                <input 
+                  type="text"
+                  className="w-full pl-3.5 pr-10 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary/20 bg-white font-semibold text-gray-900"
+                  placeholder="Ví dụ: 5000000"
+                  value={walletInitialBalance}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '');
+                    setWalletInitialBalance(val ? Number(val).toLocaleString('vi-VN') : '');
+                  }}
+                  required
+                />
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium text-sm">đ</span>
+              </div>
+            </div>
+            
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold text-gray-700">Ngày tạo <span className="text-danger">*</span></label>
+              <input 
+                type="date"
+                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white text-gray-900"
+                value={walletDate}
+                onChange={(e) => setWalletDate(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="mt-2 flex gap-3">
+              <button 
+                type="button"
+                className="flex-1 py-3 px-4 border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-bold rounded-xl transition-colors"
+                onClick={() => setIsWalletModalOpen(false)}
+              >
+                Hủy bỏ
+              </button>
+              <button 
+                type="submit"
+                className="flex-1 py-3 px-4 bg-primary hover:bg-primary/90 text-white text-sm font-bold rounded-xl shadow-sm transition-colors"
+              >
+                Tạo ví mới
               </button>
             </div>
           </form>
