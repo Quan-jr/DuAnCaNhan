@@ -72,16 +72,30 @@ const availableIcons = [
 ];
 
 const formatDate = (dateStr: string) => {
-  if (!dateStr) return '30/06/2026';
+  if (!dateStr) return '';
   try {
     const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return '30/06/2026';
+    if (isNaN(d.getTime())) return '';
     const day = String(d.getDate()).padStart(2, '0');
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const year = d.getFullYear();
     return `${day}/${month}/${year}`;
   } catch {
-    return '30/06/2026';
+    return '';
+  }
+};
+
+const toIsoDateString = (dateStr: string) => {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '';
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  } catch {
+    return '';
   }
 };
 
@@ -154,6 +168,8 @@ export default function TasksPage() {
             priority: idToPriorityMap[currentPriorityId] || 'Trung bình',
             checked: t.id__status === 3,
             date: formatDate(t.created_date),
+            rawDateStr: toIsoDateString(t.created_date),
+            created_date: t.created_date,
             icon: t.icon || getIconForTask(t.title),
             color: getColorForTask(currentPriorityId),
             image_url: t.photo,
@@ -188,9 +204,9 @@ export default function TasksPage() {
     setTaskTitle(task.title);
     setTaskDesc(task.description || '');
     
-    // Convert 'DD/MM/YYYY' to 'YYYY-MM-DD' for input type="date"
-    let isoDate = '';
-    if (task.date) {
+    // Convert ISO date or formatted date for input type="date"
+    let isoDate = task.rawDateStr || '';
+    if (!isoDate && task.date) {
       const parts = task.date.split('/');
       if (parts.length === 3) {
         isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
@@ -281,9 +297,7 @@ export default function TasksPage() {
     
     let matchesDate = true;
     if (filterDate) {
-      const [y, m, d] = filterDate.split('-');
-      const formattedFilter = `${d}/${m}/${y}`;
-      matchesDate = task.date === formattedFilter;
+      matchesDate = task.rawDateStr === filterDate;
     }
     
     return matchesSearch && matchesStatus && matchesPriority && matchesDate;
