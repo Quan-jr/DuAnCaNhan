@@ -43,7 +43,7 @@ export default function TaskKanban({ tasks }: TaskKanbanProps) {
   const done = currentWeekTasks.filter(t => t.status === 'Hoàn thành');
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex-1 flex flex-col">
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-md font-bold text-gray-900 flex items-center gap-2 flex-wrap">
           Tiến độ công việc
@@ -53,7 +53,7 @@ export default function TaskKanban({ tasks }: TaskKanbanProps) {
         </h3>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 flex-1">
         {/* TODO Column */}
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between pb-2 border-b-2 border-gray-100">

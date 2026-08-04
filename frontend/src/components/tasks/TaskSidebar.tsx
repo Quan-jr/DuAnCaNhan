@@ -38,8 +38,8 @@ export default function TaskSidebar({ tasks }: TaskSidebarProps) {
       <TaskKanban tasks={tasks} />
  
       {/* Progress Overview Donut */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
-        <div className="h-full flex flex-col p-2">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex-1 flex flex-col">
+        <div className="h-full flex flex-col p-2 flex-1 justify-center">
           <DonutChartCard 
             title="Tổng quan tiến độ"
             data={taskStats}

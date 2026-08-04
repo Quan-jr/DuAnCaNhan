@@ -10,13 +10,13 @@ const mockUpcoming = [
 
 export default function UpcomingTasks() {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex-1 flex flex-col">
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-md font-bold text-gray-900">Sắp đến hạn</h3>
         <span className="text-xs text-primary font-medium cursor-pointer hover:underline">Xem tất cả &gt;</span>
       </div>
       
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-5 flex-1 justify-center">
         {mockUpcoming.map(task => (
           <div key={task.id} className="flex items-center justify-between group cursor-pointer">
             <div className="flex items-center gap-3">
