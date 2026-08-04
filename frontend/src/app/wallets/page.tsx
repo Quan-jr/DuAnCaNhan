@@ -89,33 +89,21 @@ export default function WalletsPage() {
 
   const handleSubmitWallet = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!walletName || !walletBudgetMonth || !walletInitialBalance) {
-      alert('Vui lòng nhập đầy đủ thông tin!');
+    if (!walletInitialBalance) {
+      alert('Vui lòng nhập số dư ban đầu!');
       return;
     }
 
     try {
       const balance = parseInt(walletInitialBalance.replace(/\D/g, ''), 10);
 
-      // 1. Insert into earnings first to create the initial balance source
-      const { data: earnData, error: earnErr } = await supabase.from('earnings').insert([
-        {
-          amount: balance,
-          description: walletName,
-          salary_day: walletDate,
-        }
-      ]).select();
-
-      if (earnErr) throw earnErr;
-      const newEarningId = earnData[0].id;
-
-      // 2. Insert into wallets
+      // Insert into wallets table for initial balance
       const { error: walletErr } = await supabase.from('wallets').insert([
         {
-          budget_month: walletBudgetMonth,
-          current_balance: balance,
-          transaction_date: walletDate,
-          initial_balance_id: newEarningId
+          salary_day: walletDate,
+          initial_balance: balance,
+          type: 'thu', // Coi như thu nhập ban đầu
+          amount: balance // Hoặc để null, nhưng để amount để tiện cộng dồn
         }
       ]);
 
@@ -133,23 +121,19 @@ export default function WalletsPage() {
 
   const handleSubmitTx = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!txAmount || !txDescription || !txWalletId) {
-      alert('Vui lòng nhập đầy đủ thông tin!');
+    if (!txAmount) {
+      alert('Vui lòng nhập số tiền!');
       return;
     }
 
     try {
-      let finalAmount = parseInt(txAmount.replace(/\D/g, ''), 10);
-      if (txType === 'chi') {
-        finalAmount = -finalAmount; // Khoản chi là số âm
-      }
+      const finalAmount = parseInt(txAmount.replace(/\D/g, ''), 10);
 
-      const { error } = await supabase.from('transactions').insert([
+      const { error } = await supabase.from('wallets').insert([
         {
-          id__wallet: txWalletId,
+          salary_day: txDate,
           amount: finalAmount,
-          description: txDescription,
-          transaction_date: txDate,
+          type: txType
         }
       ]);
 
@@ -159,148 +143,103 @@ export default function WalletsPage() {
       setTxAmount('');
       setTxDescription('');
       
-      // Refresh data to automatically recalculate current_balance
       fetchData();
     } catch (error: any) {
       alert('Lỗi khi thêm giao dịch: ' + error.message);
     }
   };
 
+  const [rawRows, setRawRows] = useState<any[]>([]);
+
   const fetchData = async () => {
     try {
       setLoading(true);
       
-      // 1. Fetch Wallets joined with Earnings (for name and initial balance)
-      const { data: walletsData, error: walletsError } = await supabase
+      // Fetch everything from the single wallets table
+      const { data: dbData, error } = await supabase
         .from('wallets')
-        .select(`
-          id,
-          budget_month,
-          current_balance,
-          transaction_date,
-          initial_balance_id,
-          earnings:initial_balance_id (
-            amount,
-            description
-          )
-        `)
-        .order('id', { ascending: true });
-
-      if (walletsError) throw walletsError;
-
-      // 2. Fetch all Earnings
-      const { data: earningsData, error: earningsError } = await supabase
-        .from('earnings')
         .select('*')
-        .order('salary_day', { ascending: false });
+        .order('id', { ascending: false });
 
-      if (earningsError) throw earningsError;
+      if (error) throw error;
 
-      // 3. Fetch all Transactions
-      const { data: txData, error: txError } = await supabase
-        .from('transactions')
-        .select('*');
-      
-      if (txError) throw txError;
+      setRawRows(dbData || []);
 
-      let processedWallets: any[] = [];
-      let currentSelectedWalletId = selectedWalletId;
+      let initialBalanceSum = 0;
+      let txSum = 0;
 
-      if (walletsData) {
-        processedWallets = walletsData.map((w: any) => {
-          const initialBalance = w.earnings?.amount || 0;
-          const walletTx = txData?.filter((t: any) => t.id__wallet === w.id) || [];
-          const txSum = walletTx.reduce((sum: number, t: any) => sum + (t.amount || 0), 0);
-          
-          return {
-            id: w.id,
-            name: w.earnings?.description || `Ví #${w.id}`,
-            month: w.budget_month,
-            initialBalance: initialBalance,
-            currentBalance: initialBalance + txSum,
-            date: formatDate(w.transaction_date),
-            icon: getIconForWallet(w.earnings?.description || ''),
-            color: getColorForWallet(w.id),
-            initial_balance_id: w.initial_balance_id,
-          };
-        });
-        setWallets(processedWallets);
-        
-        if (processedWallets.length > 0 && currentSelectedWalletId === null) {
-          setSelectedWalletId(processedWallets[0].id);
-          currentSelectedWalletId = processedWallets[0].id;
-        }
-      }
+      const ledgerEntries: any[] = [];
+      const earningsEntries: any[] = [];
 
-      if (earningsData) {
-        const mappedEarnings = earningsData.map((e: any) => ({
-          id: e.id,
-          title: e.description,
-          date: formatDate(e.salary_day),
-          amount: e.amount,
-        }));
-        setEarnings(mappedEarnings);
-      }
-
-      // Compute Ledger for selected wallet
-      if (currentSelectedWalletId !== null) {
-        const currentWallet = processedWallets.find(w => w.id === currentSelectedWalletId);
-        
-        const walletEarnings = earningsData?.filter((e: any) => 
-          e.id__wallet === currentSelectedWalletId || e.id === currentWallet?.initial_balance_id
-        ) || [];
-
-        const walletTx = txData?.filter((t: any) => 
-          t.id__wallet === currentSelectedWalletId
-        ) || [];
-
-        const computedLedger: any[] = [];
-        walletEarnings.forEach((e: any) => {
-          computedLedger.push({
-            id: `ea-${e.id}`,
-            type: 'income',
-            title: e.description,
-            amount: e.amount,
-            dateStr: e.salary_day,
-            dateObj: new Date(e.salary_day || 0)
-          });
-        });
-
-        walletTx.forEach((t: any) => {
-          computedLedger.push({
-            id: `tx-${t.id}`,
-            type: 'expense',
-            title: t.description || getFallbackDescriptionForAmount(t.amount),
-            amount: t.amount,
-            dateStr: t.transaction_date,
-            dateObj: new Date(t.transaction_date || 0)
-          });
-        });
-
-        // Sort ascending by date to compute running balance
-        computedLedger.sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime());
-
-        let runningBalance = 0;
-        const processedLedger = computedLedger.map(entry => {
-          if (entry.type === 'income') {
-            runningBalance += entry.amount;
-          } else {
-            runningBalance += entry.amount; // expense amounts are negative
+      if (dbData) {
+        dbData.forEach((row: any) => {
+          // Calculate global initial balance (if initial_balance exists)
+          if (row.initial_balance != null) {
+            initialBalanceSum += Number(row.initial_balance);
+            earningsEntries.push({
+              id: row.id,
+              title: 'Số dư ban đầu',
+              date: formatDate(row.salary_day),
+              amount: row.initial_balance
+            });
           }
-          return {
-            ...entry,
-            runningBalance,
-            displayDate: formatDate(entry.dateStr)
-          };
-        });
 
-        // Reverse for display (newest first)
-        processedLedger.reverse();
-        setLedger(processedLedger);
+          // Generate ledger from rows that have amount and type
+          if (row.amount != null && row.type) {
+            const numAmount = Number(row.amount);
+            const isChi = String(row.type).toLowerCase() === 'chi';
+            if (isChi) {
+              txSum -= numAmount;
+            } else {
+              txSum += numAmount;
+            }
+            
+            ledgerEntries.push({
+              id: row.id,
+              type: isChi ? 'expense' : 'income',
+              title: 'Giao dịch',
+              amount: isChi ? -numAmount : numAmount,
+              dateStr: row.salary_day,
+              dateObj: new Date(row.salary_day || 0)
+            });
+          }
+        });
       }
+
+      // We just mock a single wallet container for the UI
+      const singleWallet = {
+        id: 1,
+        name: 'Ví chính',
+        month: 'Hiện tại',
+        initialBalance: initialBalanceSum,
+        currentBalance: initialBalanceSum + txSum,
+        date: formatDate(new Date().toISOString()),
+        icon: 'wallet',
+        color: 'bg-indigo-500',
+      };
+      
+      setWallets([singleWallet]);
+      setSelectedWalletId(1);
+      setEarnings(earningsEntries);
+
+      // Sort ascending by date to compute running balance
+      ledgerEntries.sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime());
+      
+      let runningBalance = 0;
+      const processedLedger = ledgerEntries.map(entry => {
+        runningBalance += entry.amount;
+        return {
+          ...entry,
+          runningBalance,
+          displayDate: formatDate(entry.dateStr)
+        };
+      });
+
+      processedLedger.reverse();
+      setLedger(processedLedger);
 
     } catch (error: any) {
-      console.error('Lỗi khi tải dữ liệu Ví/Thu nhập:', error.message);
+      console.error('Lỗi khi tải dữ liệu Ví:', error.message);
     } finally {
       setLoading(false);
     }
@@ -394,12 +333,13 @@ export default function WalletsPage() {
             onSelectWallet={setSelectedWalletId} 
             wallets={wallets}
             ledger={ledger}
+            rawRows={rawRows}
             loading={loading}
           />
           <InitialBalanceSources earnings={earnings} loading={loading} />
         </div>
         <div className="col-span-1">
-          <WalletDetailSidebar walletId={selectedWalletId || 1} wallets={wallets} />
+          <WalletDetailSidebar walletId={selectedWalletId || 1} wallets={wallets} ledger={ledger} />
         </div>
       </div>
 
@@ -446,21 +386,6 @@ export default function WalletsPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-gray-700">Chọn ví <span className="text-danger">*</span></label>
-              <select 
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white text-gray-900"
-                value={txWalletId || ''}
-                onChange={(e) => setTxWalletId(Number(e.target.value))}
-                required
-              >
-                <option value="" disabled>-- Chọn ví --</option>
-                {wallets.map(w => (
-                  <option key={w.id} value={w.id}>{w.name} ({w.currentBalance.toLocaleString('vi-VN')} đ)</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-gray-700">Số tiền <span className="text-danger">*</span></label>
               <div className="relative">
                 <input 
@@ -478,18 +403,7 @@ export default function WalletsPage() {
               </div>
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-gray-700">Mô tả giao dịch <span className="text-danger">*</span></label>
-              <input 
-                type="text"
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white text-gray-900"
-                placeholder={txType === 'chi' ? 'Ví dụ: Mua bàn chải đánh răng...' : 'Ví dụ: Trả lương tháng...'}
-                value={txDescription}
-                onChange={(e) => setTxDescription(e.target.value)}
-                required
-              />
-            </div>
-            
+
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-gray-700">Ngày giao dịch <span className="text-danger">*</span></label>
               <input 
@@ -541,29 +455,7 @@ export default function WalletsPage() {
 
             <h3 className="text-lg font-bold text-gray-900 mb-1">Thêm ví / Quỹ mới</h3>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-gray-700">Tên ví / Quỹ <span className="text-danger">*</span></label>
-              <input 
-                type="text"
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white text-gray-900"
-                placeholder="Ví dụ: Quỹ du lịch, Tiết kiệm..."
-                value={walletName}
-                onChange={(e) => setWalletName(e.target.value)}
-                required
-              />
-            </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-gray-700">Tháng ngân sách <span className="text-danger">*</span></label>
-              <input 
-                type="text"
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white text-gray-900"
-                placeholder="Ví dụ: 08/2026"
-                value={walletBudgetMonth}
-                onChange={(e) => setWalletBudgetMonth(e.target.value)}
-                required
-              />
-            </div>
 
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-gray-700">Số dư ban đầu <span className="text-danger">*</span></label>

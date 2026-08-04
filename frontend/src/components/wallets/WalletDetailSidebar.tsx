@@ -45,44 +45,14 @@ const formatDate = (dateStr: string) => {
 interface WalletDetailSidebarProps {
   walletId: number;
   wallets?: any[];
+  ledger?: any[];
 }
 
-export default function WalletDetailSidebar({ walletId, wallets }: WalletDetailSidebarProps) {
-  const [transactions, setTransactions] = useState<any[]>([]);
-  const [txLoading, setTxLoading] = useState(false);
-
+export default function WalletDetailSidebar({ walletId, wallets, ledger = [] }: WalletDetailSidebarProps) {
   const list = wallets || mockWallets;
   const wallet = list.find(w => w.id === walletId) || list[0];
-
-  useEffect(() => {
-    const fetchTx = async () => {
-      if (!walletId) return;
-      try {
-        setTxLoading(true);
-        const { data, error } = await supabase
-          .from('transactions')
-          .select('*')
-          .eq('id__wallet', walletId)
-          .order('transaction_date', { ascending: false });
-
-        if (error) throw error;
-        if (data) {
-          const mapped = data.map((t: any) => ({
-            id: t.id,
-            title: t.description || getFallbackDescriptionForAmount(t.amount),
-            amount: t.amount,
-            date: formatDate(t.transaction_date),
-          }));
-          setTransactions(mapped);
-        }
-      } catch (err: any) {
-        console.error('Lỗi tải giao dịch:', err.message);
-      } finally {
-        setTxLoading(false);
-      }
-    };
-    fetchTx();
-  }, [walletId]);
+  
+  const transactions = ledger.filter(entry => entry.title === 'Giao dịch');
   
   if (!wallet) {
     return (
@@ -147,11 +117,7 @@ export default function WalletDetailSidebar({ walletId, wallets }: WalletDetailS
           </span>
         </div>
         
-        {txLoading ? (
-          <div className="flex justify-center py-6">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
-          </div>
-        ) : transactions.length === 0 ? (
+        {transactions.length === 0 ? (
           <div className="text-center py-6 text-xs text-gray-400">Không có giao dịch nào</div>
         ) : (
           <div className="flex flex-col gap-3 max-h-[220px] overflow-y-auto pr-1">
@@ -159,10 +125,10 @@ export default function WalletDetailSidebar({ walletId, wallets }: WalletDetailS
               <div key={tx.id} className="flex items-center justify-between border-b border-gray-50 pb-2 last:border-0 last:pb-0">
                 <div className="flex flex-col gap-0.5">
                   <span className="text-sm font-semibold text-gray-800">{tx.title}</span>
-                  <span className="text-[10px] text-gray-400">{tx.date}</span>
+                  <span className="text-[10px] text-gray-400">{tx.displayDate}</span>
                 </div>
                 <span className={`text-sm font-bold ${tx.amount < 0 ? 'text-danger' : 'text-success'}`}>
-                  {tx.amount < 0 ? '-' : '+'}{Math.abs(tx.amount).toLocaleString('vi-VN')} đ
+                  {tx.amount < 0 ? '' : '+'}{tx.amount.toLocaleString('vi-VN')} đ
                 </span>
               </div>
             ))}
