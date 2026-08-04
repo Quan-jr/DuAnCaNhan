@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 interface TaskKanbanProps {
   tasks: any[];
 }
@@ -38,9 +40,18 @@ export default function TaskKanban({ tasks }: TaskKanbanProps) {
     return taskDate >= currentMonday;
   });
 
-  const todo = currentWeekTasks.filter(t => t.status === 'Chưa làm');
-  const inProgress = currentWeekTasks.filter(t => t.status === 'Đang làm');
-  const done = currentWeekTasks.filter(t => t.status === 'Hoàn thành');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  const totalPages = Math.ceil(currentWeekTasks.length / itemsPerPage);
+  
+  const paginatedTasks = currentWeekTasks.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const todo = paginatedTasks.filter(t => t.status === 'Chưa làm');
+  const inProgress = paginatedTasks.filter(t => t.status === 'Đang làm');
+  const done = paginatedTasks.filter(t => t.status === 'Hoàn thành');
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex-1 flex flex-col">
@@ -114,6 +125,26 @@ export default function TaskKanban({ tasks }: TaskKanbanProps) {
           </div>
         </div>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 mt-6 pt-4 border-t border-gray-100">
+          <button 
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            className="w-6 h-6 rounded-md flex items-center justify-center border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-50 text-xs"
+          >
+            &lt;
+          </button>
+          <span className="text-xs text-gray-600 font-medium">{currentPage} / {totalPages}</span>
+          <button 
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            className="w-6 h-6 rounded-md flex items-center justify-center border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-50 text-xs"
+          >
+            &gt;
+          </button>
+        </div>
+      )}
     </div>
   );
 }
