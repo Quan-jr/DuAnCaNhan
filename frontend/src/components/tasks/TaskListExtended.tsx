@@ -75,7 +75,7 @@ export default function TaskListExtended({ tasks, loading, fetchTasks, onEdit }:
 
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full overflow-hidden min-h-[400px] justify-center items-center">
+      <div className="flex flex-col h-full min-h-[400px] justify-center items-center">
         <RefreshCw className="animate-spin text-primary" size={32} />
         <span className="text-sm text-gray-500 mt-2 font-medium">Đang tải danh sách công việc...</span>
       </div>
@@ -83,8 +83,8 @@ export default function TaskListExtended({ tasks, loading, fetchTasks, onEdit }:
   }
 
   return (
-    <div className="bg-white shadow-sm border border-gray-100 flex flex-col h-full overflow-hidden rounded-md">
-      <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+    <div className="flex flex-col h-full overflow-hidden">
+      <div className="py-4 border-b border-gray-200 flex items-center justify-between mb-2">
         <h2 className="text-lg font-bold text-gray-900">Danh sách công việc</h2>
         <button className="text-gray-400 hover:text-gray-600">
           <MoreVertical size={20} />
