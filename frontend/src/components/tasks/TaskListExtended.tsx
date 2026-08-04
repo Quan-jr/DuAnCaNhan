@@ -21,9 +21,26 @@ interface TaskListExtendedProps {
   loading: boolean;
   fetchTasks: () => Promise<void>;
   onEdit?: (task: any) => void;
+  filterMonth?: string;
+  setFilterMonth?: (val: string) => void;
+  filterDate?: string;
+  setFilterDate?: (val: string) => void;
+  onClearFilters?: () => void;
+  hasFilters?: boolean;
 }
 
-export default function TaskListExtended({ tasks, loading, fetchTasks, onEdit }: TaskListExtendedProps) {
+export default function TaskListExtended({ 
+  tasks, 
+  loading, 
+  fetchTasks, 
+  onEdit,
+  filterMonth = '',
+  setFilterMonth,
+  filterDate = '',
+  setFilterDate,
+  onClearFilters,
+  hasFilters = false
+}: TaskListExtendedProps) {
   const [selectedTask, setSelectedTask] = useState<any>(null);
 
   const getStatusColor = (status: string) => {
@@ -84,8 +101,37 @@ export default function TaskListExtended({ tasks, loading, fetchTasks, onEdit }:
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <div className="py-4 border-b border-gray-200 flex items-center justify-between mb-2">
-        <h2 className="text-lg font-bold text-gray-900">Danh sách công việc</h2>
+      <div className="py-4 border-b border-gray-200 flex flex-wrap items-center justify-between gap-3 mb-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <h2 className="text-lg font-bold text-gray-900">Danh sách công việc</h2>
+          
+          <input
+            type="month"
+            className="px-2.5 py-1 border border-gray-200 rounded-xl bg-white text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            value={filterMonth}
+            onChange={(e) => setFilterMonth?.(e.target.value)}
+            title="Lọc theo tháng"
+          />
+
+          <input
+            type="date"
+            className="px-2.5 py-1 border border-gray-200 rounded-xl bg-white text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            value={filterDate}
+            onChange={(e) => setFilterDate?.(e.target.value)}
+            title="Lọc theo ngày"
+          />
+
+          {hasFilters && (
+            <button 
+              className="px-2.5 py-1 border border-red-200 text-red-500 rounded-xl bg-red-50 text-xs flex items-center gap-1 hover:bg-red-100 transition-colors whitespace-nowrap"
+              onClick={onClearFilters}
+              type="button"
+            >
+              Xóa bộ lọc
+            </button>
+          )}
+        </div>
+
         <button className="text-gray-400 hover:text-gray-600">
           <MoreVertical size={20} />
         </button>

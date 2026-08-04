@@ -374,33 +374,7 @@ export default function TasksPage() {
             <option value="Khẩn cấp">Khẩn cấp</option>
           </select>
           
-          <input
-            type="month"
-            className="px-3 py-2 border border-gray-200 rounded-xl bg-white text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shrink-0"
-            value={filterMonth}
-            onChange={(e) => setFilterMonth(e.target.value)}
-            title="Lọc theo tháng"
-          />
-
-          <input
-            type="date"
-            className="px-3 py-2 border border-gray-200 rounded-xl bg-white text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shrink-0"
-            value={filterDate}
-            onChange={(e) => setFilterDate(e.target.value)}
-            title="Lọc theo ngày"
-          />
-
           <div className="flex items-center gap-2 shrink-0">
-            {(searchQuery || filterStatus !== 'Tất cả' || filterPriority !== 'Tất cả' || filterDate || filterMonth) && (
-              <button 
-                className="px-3 py-2 border border-red-200 text-red-500 rounded-xl bg-red-50 text-sm flex items-center gap-1.5 hover:bg-red-100 transition-colors"
-                onClick={handleClearFilters}
-                type="button"
-              >
-                Xóa bộ lọc
-              </button>
-            )}
-            
             <button 
               className="bg-primary text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors shadow-sm whitespace-nowrap"
               onClick={() => {
@@ -463,7 +437,18 @@ export default function TasksPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="col-span-1 lg:col-span-7 xl:col-span-7 flex flex-col gap-6">
-          <TaskListExtended tasks={filteredTasks} loading={loading} fetchTasks={fetchTasks} onEdit={handleEditTask} />
+          <TaskListExtended 
+            tasks={filteredTasks} 
+            loading={loading} 
+            fetchTasks={fetchTasks} 
+            onEdit={handleEditTask}
+            filterMonth={filterMonth}
+            setFilterMonth={setFilterMonth}
+            filterDate={filterDate}
+            setFilterDate={setFilterDate}
+            onClearFilters={handleClearFilters}
+            hasFilters={Boolean(searchQuery || filterStatus !== 'Tất cả' || filterPriority !== 'Tất cả' || filterDate || filterMonth)}
+          />
         </div>
         <div className="col-span-1 lg:col-span-5 xl:col-span-5">
           <TaskSidebar tasks={filteredTasks} />
