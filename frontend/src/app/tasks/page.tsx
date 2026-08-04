@@ -338,61 +338,24 @@ export default function TasksPage() {
           <p className="text-sm text-gray-500 mt-1">Theo dõi, quản lý và hoàn thành công việc hiệu quả mỗi ngày.</p>
         </div>
         
-        <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full md:w-auto">
-          <div className="relative w-full sm:w-auto">
-            <input
-              type="text"
-              className="block w-full sm:w-40 pl-3 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary sm:text-sm text-gray-900"
-              placeholder="Tìm kiếm..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          
-          <select 
-            className="px-3 py-2 border border-gray-200 rounded-xl bg-white text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shrink-0"
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
+        <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+          <button 
+            className="bg-primary text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors shadow-sm whitespace-nowrap"
+            onClick={() => {
+              setEditingTaskId(null);
+              setTaskTitle('');
+              setTaskDesc('');
+              setTaskDate('');
+              setTaskPriority('Trung bình');
+              setTaskStatus('Chưa làm');
+              setTaskImage(null);
+              setTaskIcon('file-text');
+              setIsAddModalOpen(true);
+            }}
+            type="button"
           >
-            <option value="Tất cả">Trạng thái</option>
-            <option value="Chưa làm">Chưa làm</option>
-            <option value="Đang làm">Đang làm</option>
-            <option value="Hoàn thành">Hoàn thành</option>
-            <option value="Tạm hoãn">Tạm hoãn</option>
-            <option value="Hủy bỏ">Hủy bỏ</option>
-          </select>
-          
-          <select 
-            className="px-3 py-2 border border-gray-200 rounded-xl bg-white text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shrink-0"
-            value={filterPriority}
-            onChange={(e) => setFilterPriority(e.target.value)}
-          >
-            <option value="Tất cả">Ưu tiên</option>
-            <option value="Thấp">Thấp</option>
-            <option value="Trung bình">Trung bình</option>
-            <option value="Cao">Cao</option>
-            <option value="Khẩn cấp">Khẩn cấp</option>
-          </select>
-          
-          <div className="flex items-center gap-2 shrink-0">
-            <button 
-              className="bg-primary text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors shadow-sm whitespace-nowrap"
-              onClick={() => {
-                setEditingTaskId(null);
-                setTaskTitle('');
-                setTaskDesc('');
-                setTaskDate('');
-                setTaskPriority('Trung bình');
-                setTaskStatus('Chưa làm');
-                setTaskImage(null);
-                setTaskIcon('file-text');
-                setIsAddModalOpen(true);
-              }}
-              type="button"
-            >
-              + Thêm công việc
-            </button>
-          </div>
+            + Thêm công việc
+          </button>
         </div>
       </div>
 
@@ -442,6 +405,17 @@ export default function TasksPage() {
             loading={loading} 
             fetchTasks={fetchTasks} 
             onEdit={handleEditTask}
+          />
+        </div>
+        <div className="col-span-1 lg:col-span-5 xl:col-span-5">
+          <TaskSidebar 
+            tasks={filteredTasks}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            filterStatus={filterStatus}
+            setFilterStatus={setFilterStatus}
+            filterPriority={filterPriority}
+            setFilterPriority={setFilterPriority}
             filterMonth={filterMonth}
             setFilterMonth={setFilterMonth}
             filterDate={filterDate}
@@ -449,9 +423,6 @@ export default function TasksPage() {
             onClearFilters={handleClearFilters}
             hasFilters={Boolean(searchQuery || filterStatus !== 'Tất cả' || filterPriority !== 'Tất cả' || filterDate || filterMonth)}
           />
-        </div>
-        <div className="col-span-1 lg:col-span-5 xl:col-span-5">
-          <TaskSidebar tasks={filteredTasks} />
         </div>
       </div>
 

@@ -3,12 +3,39 @@
 import DonutChartCard from '../shared/DonutChartCard';
 import TaskKanban from './TaskKanban';
 import UpcomingTasks from './UpcomingTasks';
+import TaskFilterCard from './TaskFilterCard';
 
 interface TaskSidebarProps {
   tasks: any[];
+  searchQuery?: string;
+  setSearchQuery?: (val: string) => void;
+  filterStatus?: string;
+  setFilterStatus?: (val: string) => void;
+  filterPriority?: string;
+  setFilterPriority?: (val: string) => void;
+  filterMonth?: string;
+  setFilterMonth?: (val: string) => void;
+  filterDate?: string;
+  setFilterDate?: (val: string) => void;
+  onClearFilters?: () => void;
+  hasFilters?: boolean;
 }
 
-export default function TaskSidebar({ tasks }: TaskSidebarProps) {
+export default function TaskSidebar({ 
+  tasks,
+  searchQuery = '',
+  setSearchQuery = () => {},
+  filterStatus = 'Tất cả',
+  setFilterStatus = () => {},
+  filterPriority = 'Tất cả',
+  setFilterPriority = () => {},
+  filterMonth = '',
+  setFilterMonth = () => {},
+  filterDate = '',
+  setFilterDate = () => {},
+  onClearFilters = () => {},
+  hasFilters = false
+}: TaskSidebarProps) {
   const total = tasks.length || 1;
   const inProgress = tasks.filter(t => t.status === 'Đang làm').length;
   const completed = tasks.filter(t => t.status === 'Hoàn thành').length;
@@ -33,6 +60,22 @@ export default function TaskSidebar({ tasks }: TaskSidebarProps) {
 
   return (
     <div className="flex flex-col gap-6 h-full">
+      {/* Task Filter Card (Placed above UpcomingTasks) */}
+      <TaskFilterCard 
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        filterStatus={filterStatus}
+        setFilterStatus={setFilterStatus}
+        filterPriority={filterPriority}
+        setFilterPriority={setFilterPriority}
+        filterMonth={filterMonth}
+        setFilterMonth={setFilterMonth}
+        filterDate={filterDate}
+        setFilterDate={setFilterDate}
+        onClearFilters={onClearFilters}
+        hasFilters={hasFilters}
+      />
+
       <UpcomingTasks tasks={tasks} />
       
       <TaskKanban tasks={tasks} />
