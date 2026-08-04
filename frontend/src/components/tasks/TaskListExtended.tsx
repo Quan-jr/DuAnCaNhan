@@ -165,11 +165,11 @@ export default function TaskListExtended({ tasks, loading, fetchTasks, onEdit }:
                         <span>{task.date}</span>
                       </div>
                       
-                      <div className="flex items-center gap-2 w-[160px] justify-end">
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${getStatusColor(task.status)}`}>
+                      <div className="flex items-center gap-2 w-[170px] shrink-0 justify-end">
+                        <span className={`w-[80px] text-center whitespace-nowrap px-1 py-1 rounded-full text-[10px] font-bold border ${getStatusColor(task.status)}`}>
                           {task.status}
                         </span>
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${getPriorityColor(task.priority)}`}>
+                        <span className={`w-[80px] text-center whitespace-nowrap px-1 py-1 rounded-full text-[10px] font-bold border ${getPriorityColor(task.priority)}`}>
                           {task.priority}
                         </span>
                       </div>
