@@ -99,6 +99,19 @@ const toIsoDateString = (dateStr: string) => {
   }
 };
 
+const toIsoMonthString = (dateStr: string) => {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '';
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}`;
+  } catch {
+    return '';
+  }
+};
+
 export default function TasksPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
@@ -113,6 +126,7 @@ export default function TasksPage() {
   const [filterStatus, setFilterStatus] = useState('Tất cả');
   const [filterPriority, setFilterPriority] = useState('Tất cả');
   const [filterDate, setFilterDate] = useState('');
+  const [filterMonth, setFilterMonth] = useState('');
 
   // Form state
   const [taskTitle, setTaskTitle] = useState('');
@@ -169,6 +183,7 @@ export default function TasksPage() {
             checked: t.id__status === 3,
             date: formatDate(t.created_date),
             rawDateStr: toIsoDateString(t.created_date),
+            rawMonthStr: toIsoMonthString(t.created_date),
             created_date: t.created_date,
             icon: t.icon || getIconForTask(t.title),
             color: getColorForTask(currentPriorityId),
@@ -284,6 +299,7 @@ export default function TasksPage() {
     setFilterStatus('Tất cả');
     setFilterPriority('Tất cả');
     setFilterDate('');
+    setFilterMonth('');
   };
 
   // Filter logic
@@ -299,8 +315,13 @@ export default function TasksPage() {
     if (filterDate) {
       matchesDate = task.rawDateStr === filterDate;
     }
+
+    let matchesMonth = true;
+    if (filterMonth) {
+      matchesMonth = task.rawMonthStr === filterMonth;
+    }
     
-    return matchesSearch && matchesStatus && matchesPriority && matchesDate;
+    return matchesSearch && matchesStatus && matchesPriority && matchesDate && matchesMonth;
   });
 
   // Calculate statistics based on filtered tasks
@@ -354,14 +375,23 @@ export default function TasksPage() {
           </select>
           
           <input
+            type="month"
+            className="px-3 py-2 border border-gray-200 rounded-xl bg-white text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shrink-0"
+            value={filterMonth}
+            onChange={(e) => setFilterMonth(e.target.value)}
+            title="Lọc theo tháng"
+          />
+
+          <input
             type="date"
             className="px-3 py-2 border border-gray-200 rounded-xl bg-white text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shrink-0"
             value={filterDate}
             onChange={(e) => setFilterDate(e.target.value)}
+            title="Lọc theo ngày"
           />
 
           <div className="flex items-center gap-2 shrink-0">
-            {(searchQuery || filterStatus !== 'Tất cả' || filterPriority !== 'Tất cả' || filterDate) && (
+            {(searchQuery || filterStatus !== 'Tất cả' || filterPriority !== 'Tất cả' || filterDate || filterMonth) && (
               <button 
                 className="px-3 py-2 border border-red-200 text-red-500 rounded-xl bg-red-50 text-sm flex items-center gap-1.5 hover:bg-red-100 transition-colors"
                 onClick={handleClearFilters}
