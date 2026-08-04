@@ -33,7 +33,7 @@ export default function TaskSidebar({ tasks }: TaskSidebarProps) {
 
   return (
     <div className="flex flex-col gap-6 h-full">
-      <UpcomingTasks />
+      <UpcomingTasks tasks={tasks} />
       
       <TaskKanban tasks={tasks} />
  
