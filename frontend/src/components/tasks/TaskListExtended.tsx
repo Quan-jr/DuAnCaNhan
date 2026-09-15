@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { X, MoreVertical, Calendar, CheckSquare, RefreshCw, CheckCircle, FileText, ShoppingCart, BookOpen, Activity, Book, Monitor, Plane, Clock } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { isLearningTask, checkInTodayStudy } from '@/lib/studyStreak';
 
 const iconMap: Record<string, any> = {
   'file-text': FileText,
@@ -56,6 +57,11 @@ export default function TaskListExtended({
         .eq('id', task.id);
       
       if (error) throw error;
+
+      if (newStatusId === 3 && isLearningTask(task.title, task.icon)) {
+        checkInTodayStudy();
+      }
+
       fetchTasks();
     } catch (err: any) {
       alert(`Lỗi khi cập nhật trạng thái: ${err.message}`);

@@ -9,6 +9,7 @@ import TaskHistoryLog from '@/components/tasks/TaskHistoryLog';
 import TaskSidebar from '@/components/tasks/TaskSidebar';
 import { CheckSquare, RefreshCw, CheckCircle, Clock, X, Camera, Upload, Trash2, FileText, ShoppingCart, BookOpen, Activity, Monitor, Plane, Calendar } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/components/providers/AuthProvider';
 
 const statusToIdMap: Record<string, number> = {
   'Chưa làm': 1,
@@ -138,6 +139,7 @@ const toIsoMonthString = (dateStr: string) => {
 };
 
 export default function TasksPage() {
+  const { user } = useAuth();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -168,6 +170,7 @@ export default function TasksPage() {
       const { data, error } = await supabase
         .from('task_list')
         .select('*')
+        .eq('user_id', user?.id)
         .order('id', { ascending: true });
 
       if (error) throw error;
@@ -295,6 +298,7 @@ export default function TasksPage() {
               photo: taskImage,
               icon: taskIcon,
               created_date: taskDate || getTodayIso(),
+              user_id: user?.id
             }
           ]);
 
@@ -316,6 +320,19 @@ export default function TasksPage() {
       fetchTasks();
     } catch (error: any) {
       alert(`Lỗi khi lưu công việc vào DB: ${error.message}`);
+    }
+  };
+
+  const handleCompleteTask = async (task: any) => {
+    try {
+      const { error } = await supabase
+        .from('task_list')
+        .update({ id__status: 3 })
+        .eq('id', task.id);
+      if (error) throw error;
+      fetchTasks();
+    } catch (err: any) {
+      console.error('Lỗi khi hoàn thành task:', err.message);
     }
   };
 
@@ -358,10 +375,7 @@ export default function TasksPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Quản lý công việc</h1>
-          <p className="text-sm text-gray-500 mt-1">Theo dõi, quản lý và hoàn thành công việc hiệu quả mỗi ngày.</p>
-        </div>
+
         
         <div className="flex items-center gap-3 w-full md:w-auto justify-end">
           <button 
@@ -440,6 +454,7 @@ export default function TasksPage() {
             setFilterDate={setFilterDate}
             onClearFilters={handleClearFilters}
             hasFilters={Boolean(searchQuery || filterStatus !== 'Tất cả' || filterPriority !== 'Tất cả' || filterDate || filterMonth)}
+            onCompleteTask={handleCompleteTask}
           />
         </div>
         {/* Task List: second on mobile, left on desktop */}

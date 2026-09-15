@@ -4,6 +4,7 @@ import DonutChartCard from '../shared/DonutChartCard';
 import TaskKanban from './TaskKanban';
 import UpcomingTasks from './UpcomingTasks';
 import TaskFilterCard from './TaskFilterCard';
+import StudyStreakCard from './StudyStreakCard';
 
 interface TaskSidebarProps {
   tasks: any[];
@@ -19,6 +20,7 @@ interface TaskSidebarProps {
   setFilterDate?: (val: string) => void;
   onClearFilters?: () => void;
   hasFilters?: boolean;
+  onCompleteTask?: (task: any) => void;
 }
 
 export default function TaskSidebar({ 
@@ -34,7 +36,8 @@ export default function TaskSidebar({
   filterDate = '',
   setFilterDate = () => {},
   onClearFilters = () => {},
-  hasFilters = false
+  hasFilters = false,
+  onCompleteTask
 }: TaskSidebarProps) {
   const total = tasks.length || 1;
   const inProgress = tasks.filter(t => t.status === 'Đang làm').length;
@@ -60,6 +63,9 @@ export default function TaskSidebar({
 
   return (
     <div className="flex flex-col gap-6 h-full">
+      {/* Chuỗi học tập & Giữ chuỗi */}
+      <StudyStreakCard tasks={tasks} onCompleteTask={onCompleteTask} />
+
       {/* Task Filter Card (Placed above UpcomingTasks) */}
       <TaskFilterCard 
         searchQuery={searchQuery}
@@ -76,30 +82,6 @@ export default function TaskSidebar({
         hasFilters={hasFilters}
       />
 
-      <UpcomingTasks tasks={tasks} />
-      
-      <TaskKanban tasks={tasks} />
- 
-      {/* Progress Overview Donut */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex-1 flex flex-col">
-        <div className="h-full flex flex-col p-2 flex-1 justify-center">
-          <DonutChartCard 
-            title="Tổng quan tiến độ"
-            data={taskStats}
-            centerElement={chartCenter}
-            showLegendAmounts={true}
-          />
-          <div className="px-6 pb-6 pt-2">
-            <div className="flex justify-between text-xs mb-2">
-              <span className="text-gray-500 font-medium">Hoàn thành mục tiêu tháng 06</span>
-              <span className="font-bold text-gray-900">{progressPercent}%</span>
-            </div>
-            <div className="w-full bg-gray-100 rounded-full h-1.5">
-              <div className="bg-primary h-1.5 rounded-full transition-all duration-300" style={{ width: `${progressPercent}%` }}></div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

@@ -11,15 +11,18 @@ import {
   Briefcase,
   ArrowRightLeft,
   Menu,
-  X
+  X,
+  Timer,
+  Sparkles,
+  Calendar
 } from 'lucide-react';
 
 const menuItems = [
   { name: 'Tổng quan', href: '/', icon: Home },
+  { name: 'Lịch biểu', href: '/calendar', icon: Calendar },
+  { name: 'Thú cưng 3D', href: '/pet', icon: Sparkles },
   { name: 'Task List', href: '/tasks', icon: ListTodo },
-  { name: 'Thu nhập', href: '/earnings', icon: Wallet },
-  { name: 'Ví', href: '/wallets', icon: Briefcase },
-  { name: 'Giao dịch', href: '/transactions', icon: ArrowRightLeft },
+  { name: 'Pomodoro', href: '/pomodoro', icon: Timer },
 ];
 
 export default function Sidebar() {

@@ -2,28 +2,31 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { 
   Home, 
   ListTodo, 
   Wallet, 
-  Briefcase,
-  ArrowRightLeft,
-  X,
-  User,
-  Sparkles
+  Briefcase, 
+  ArrowRightLeft, 
+  X, 
+  User, 
+  Sparkles, 
+  Timer,
+  Calendar
 } from 'lucide-react';
 
 const menuItems = [
   { name: 'Tổng quan', href: '/', icon: Home, color: 'bg-blue-500 text-white shadow-blue-500/30' },
+  { name: 'Lịch biểu', href: '/calendar', icon: Calendar, color: 'bg-sky-500 text-white shadow-sky-500/30' },
+  { name: 'Thú cưng 3D', href: '/pet', icon: Sparkles, color: 'bg-pink-500 text-white shadow-pink-500/30' },
   { name: 'Task List', href: '/tasks', icon: ListTodo, color: 'bg-purple-500 text-white shadow-purple-500/30' },
-  { name: 'Thu nhập', href: '/earnings', icon: Wallet, color: 'bg-emerald-500 text-white shadow-emerald-500/30' },
-  { name: 'Ví', href: '/wallets', icon: Briefcase, color: 'bg-amber-500 text-white shadow-amber-500/30' },
-  { name: 'Giao dịch', href: '/transactions', icon: ArrowRightLeft, color: 'bg-rose-500 text-white shadow-rose-500/30' },
+  { name: 'Pomodoro', href: '/pomodoro', icon: Timer, color: 'bg-rose-500 text-white shadow-rose-500/30' },
 ];
 
 export default function CircularNavMenu() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
@@ -37,7 +40,7 @@ export default function CircularNavMenu() {
   }, []);
 
   // Radius for radial positioning (in pixels)
-  const R = 110;
+  const R = 142;
 
   return (
     <>
@@ -111,7 +114,11 @@ export default function CircularNavMenu() {
             >
               <Link
                 href={item.href}
-                onClick={() => setIsOpen(false)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIsOpen(false);
+                  router.push(item.href);
+                }}
                 onMouseEnter={() => setHoveredItem(item.name)}
                 onMouseLeave={() => setHoveredItem(null)}
                 className={`w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-125 relative group ${
