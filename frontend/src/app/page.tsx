@@ -575,7 +575,7 @@ export default function Dashboard() {
       </div>
 
       {/* ── 3. Main Center Liquid Glass Dashboard Panel ── */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-[92vw] sm:w-[88vw] max-w-5xl h-[84vh] sm:h-[78vh] min-h-[480px] bg-white/20 backdrop-blur-3xl border border-white/40 rounded-3xl sm:rounded-[3.2rem] shadow-[0_30px_90px_rgba(0,0,0,0.18)] p-4 sm:p-8 md:p-10 flex flex-col justify-between overflow-y-auto sm:overflow-visible pb-20 lg:pb-10">
+      <div className="relative lg:absolute lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 z-20 w-[95vw] lg:w-[88vw] max-w-5xl min-h-[85vh] lg:h-[78vh] lg:min-h-[540px] bg-white/20 backdrop-blur-3xl border border-white/40 rounded-3xl sm:rounded-[3.2rem] shadow-[0_30px_90px_rgba(0,0,0,0.18)] p-5 sm:p-8 md:p-10 flex flex-col justify-between overflow-y-auto overflow-x-hidden my-4 lg:my-0 pb-24 lg:pb-10 mx-auto">
         {/* Glossy Reflection Highlight */}
         <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-white/40 via-white/10 to-transparent pointer-events-none rounded-t-[3.2rem]" />
 
@@ -619,9 +619,9 @@ export default function Dashboard() {
         </div>
 
         {/* ── Center Content: Left Dark Calendar + Center Photo Sticker + Right Gallery/Player ── */}
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 my-auto items-center overflow-visible">
+        <div className="relative z-10 flex flex-col md:grid md:grid-cols-12 gap-5 md:gap-6 my-auto items-center overflow-visible w-full">
           {/* Left Column: Dark Mini Calendar Widget */}
-          <div className="hidden sm:block md:col-span-4 max-w-[240px] mx-auto md:mx-0">
+          <div className="w-full md:col-span-4 max-w-[240px] mx-auto md:mx-0">
             <div className="bg-[#161922]/90 backdrop-blur-2xl text-white p-5 rounded-[2rem] border border-white/10 shadow-2xl">
               <div className="text-center mb-3 border-b border-white/10 pb-2">
                 <h4 className="text-sm font-bold tracking-wide uppercase text-slate-200">
@@ -646,7 +646,7 @@ export default function Dashboard() {
           </div>
 
           {/* Center Column: Character Cutout Mascot (Hình nhân vật tách nền tràn viền) */}
-          <div className="col-span-1 md:col-span-4 flex flex-col items-center justify-center relative z-30 overflow-visible">
+          <div className="w-full md:col-span-4 flex flex-col items-center justify-center relative z-30 overflow-visible py-2">
             {/* Hidden Inputs for Mascot Upload */}
             <input
               ref={mascotInputRef}
@@ -708,7 +708,7 @@ export default function Dashboard() {
           </div>
 
           {/* Right Column: Mini Sticker Gallery Grid & Lofi Music Player */}
-          <div className="col-span-1 md:col-span-4 space-y-3 sm:space-y-4">
+          <div className="w-full md:col-span-4 space-y-3 sm:space-y-4">
             {/* Gallery Sticker Thumbnails Grid */}
             <div className="grid grid-cols-3 gap-2">
               {stickers.slice(0, 2).map((item, idx) => (
