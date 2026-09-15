@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import Sidebar from '@/components/shared/Sidebar';
+import MobileBottomNav from '@/components/shared/MobileBottomNav';
 
 interface PhotoSticker {
   id: string;
@@ -574,41 +575,41 @@ export default function Dashboard() {
       </div>
 
       {/* ── 3. Main Center Liquid Glass Dashboard Panel ── */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-[88vw] max-w-5xl h-[78vh] min-h-[540px] bg-white/20 backdrop-blur-3xl border border-white/40 rounded-[3.2rem] shadow-[0_30px_90px_rgba(0,0,0,0.18)] p-8 sm:p-10 flex flex-col justify-between overflow-visible">
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-[92vw] sm:w-[88vw] max-w-5xl h-[84vh] sm:h-[78vh] min-h-[480px] bg-white/20 backdrop-blur-3xl border border-white/40 rounded-3xl sm:rounded-[3.2rem] shadow-[0_30px_90px_rgba(0,0,0,0.18)] p-4 sm:p-8 md:p-10 flex flex-col justify-between overflow-y-auto sm:overflow-visible pb-20 lg:pb-10">
         {/* Glossy Reflection Highlight */}
         <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-white/40 via-white/10 to-transparent pointer-events-none rounded-t-[3.2rem]" />
 
         {/* ── Top Bar inside Glass Panel ── */}
-        <div className="relative z-10 flex items-start justify-between">
+        <div className="relative z-10 flex flex-wrap items-center justify-between gap-3">
           {/* Top Left: Digital Clock & Date */}
           <div>
-            <h1 className="text-5xl font-black tracking-tight text-slate-900 font-mono drop-shadow-xs">
+            <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-900 font-mono drop-shadow-xs">
               {timeStr}
             </h1>
-            <p className="text-xs font-bold text-slate-700 uppercase tracking-widest mt-1">
+            <p className="text-[10px] sm:text-xs font-bold text-slate-700 uppercase tracking-widest mt-0.5 sm:mt-1">
               {dateStr}
             </p>
           </div>
 
           {/* Top Right: User Profile Pill & Greeting & Setting Button */}
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <h3 className="text-lg font-black text-gray-900 drop-shadow-2xs">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <div className="text-right hidden sm:block">
+              <h3 className="text-base sm:text-lg font-black text-gray-900 drop-shadow-2xs">
                 Hi {userName}!!
               </h3>
             </div>
-            <div className="flex items-center gap-2 px-3.5 py-1.5 bg-white/80 backdrop-blur-md rounded-full border border-white/90 shadow-md text-xs font-bold text-gray-900">
-              <span className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center font-extrabold text-[10px]">
+            <div className="flex items-center gap-1.5 sm:gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 bg-white/80 backdrop-blur-md rounded-full border border-white/90 shadow-md text-xs font-bold text-gray-900">
+              <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center font-extrabold text-[9px] sm:text-[10px]">
                 {userName.charAt(0).toUpperCase()}
               </span>
-              <span>{userName}</span>
-              <Sparkles size={13} className="text-purple-600" />
+              <span className="max-w-[80px] sm:max-w-none truncate">{userName}</span>
+              <Sparkles size={13} className="text-purple-600 hidden sm:inline" />
             </div>
 
             {/* ⚙️ SETTING BUTTON */}
             <button
               onClick={() => setShowHomeSettings(true)}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white/80 hover:bg-white text-gray-900 font-extrabold text-xs rounded-full border border-white/90 shadow-md backdrop-blur-md transition-all active:scale-95 cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 bg-white/80 hover:bg-white text-gray-900 font-extrabold text-xs rounded-full border border-white/90 shadow-md backdrop-blur-md transition-all active:scale-95 cursor-pointer"
               title="Mở Cài đặt Desktop & Nhân vật"
             >
               <Settings size={14} className="text-indigo-600" />
@@ -618,9 +619,9 @@ export default function Dashboard() {
         </div>
 
         {/* ── Center Content: Left Dark Calendar + Center Photo Sticker + Right Gallery/Player ── */}
-        <div className="relative z-10 grid grid-cols-12 gap-6 my-auto items-center overflow-visible">
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 my-auto items-center overflow-visible">
           {/* Left Column: Dark Mini Calendar Widget */}
-          <div className="col-span-4 max-w-[240px]">
+          <div className="hidden sm:block md:col-span-4 max-w-[240px] mx-auto md:mx-0">
             <div className="bg-[#161922]/90 backdrop-blur-2xl text-white p-5 rounded-[2rem] border border-white/10 shadow-2xl">
               <div className="text-center mb-3 border-b border-white/10 pb-2">
                 <h4 className="text-sm font-bold tracking-wide uppercase text-slate-200">
@@ -645,7 +646,7 @@ export default function Dashboard() {
           </div>
 
           {/* Center Column: Character Cutout Mascot (Hình nhân vật tách nền tràn viền) */}
-          <div className="col-span-4 flex flex-col items-center justify-center relative z-30 overflow-visible">
+          <div className="col-span-1 md:col-span-4 flex flex-col items-center justify-center relative z-30 overflow-visible">
             {/* Hidden Inputs for Mascot Upload */}
             <input
               ref={mascotInputRef}
@@ -674,7 +675,7 @@ export default function Dashboard() {
             >
               {/* Character Cutout Container with Outlined Stroke Glow */}
               <div 
-                className="relative h-[340px] sm:h-[400px] md:h-[440px] w-full flex items-end justify-center transition-all duration-300 overflow-visible"
+                className="relative h-[260px] sm:h-[360px] md:h-[440px] w-full flex items-end justify-center transition-all duration-300 overflow-visible"
                 style={{
                   filter: strokeGlowEnabled 
                     ? 'drop-shadow(0 0 16px rgba(59, 130, 246, 0.95))'
@@ -707,7 +708,7 @@ export default function Dashboard() {
           </div>
 
           {/* Right Column: Mini Sticker Gallery Grid & Lofi Music Player */}
-          <div className="col-span-4 space-y-4">
+          <div className="col-span-1 md:col-span-4 space-y-3 sm:space-y-4">
             {/* Gallery Sticker Thumbnails Grid */}
             <div className="grid grid-cols-3 gap-2">
               {stickers.slice(0, 2).map((item, idx) => (
@@ -764,6 +765,9 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <MobileBottomNav />
 
       {/* ── 5. SETTING POPUP MODAL ── */}
       {showHomeSettings && (
